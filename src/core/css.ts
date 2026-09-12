@@ -85,24 +85,48 @@ export type Breakpoint = keyof typeof breakpoints;
 
 // Utilitárias core (sem variante) + responsivas (sm:/md:/lg:/xl:) — Tailwind-like.
 export function generateUtilities(
-  bps: Partial<Record<Breakpoint, number>> = breakpoints
+  bps: Partial<Record<Breakpoint, number>> = breakpoints,
 ): string {
   const lines: string[] = [];
   const add = (sel: string, decl: string) => lines.push(`.${sel}{${decl}}`);
 
   // display
-  for (const d of ["block", "inline-block", "flex", "grid", "hidden"]) add(d, `display:${d}`);
+  for (const d of ["block", "inline-block", "flex", "grid", "hidden"])
+    add(d, `display:${d}`);
   add("flex-col", "flex-direction:column");
   add("flex-row", "flex-direction:row");
-  for (const it of ["start", "center", "end", "between"]) add(`items-${it}`, `align-items:${it === "between" ? "baseline" : it}` === "align-items:baseline" ? "align-items:flex-start" : `align-items:${it}`);
+  for (const it of ["start", "center", "end", "between"])
+    add(
+      `items-${it}`,
+      `align-items:${it === "between" ? "baseline" : it}` ===
+        "align-items:baseline"
+        ? "align-items:flex-start"
+        : `align-items:${it}`,
+    );
   add("items-center", "align-items:center");
-  for (const j of ["start", "center", "end", "between"]) add(`justify-${j}`, j === "between" ? "justify-content:space-between" : `justify-content:${j}`);
-  for (let n = 1; n <= 4; n++) add(`grid-cols-${n}`, `grid-template-columns:repeat(${n},minmax(0,1fr))`);
+  for (const j of ["start", "center", "end", "between"])
+    add(
+      `justify-${j}`,
+      j === "between"
+        ? "justify-content:space-between"
+        : `justify-content:${j}`,
+    );
+  for (let n = 1; n <= 4; n++)
+    add(`grid-cols-${n}`, `grid-template-columns:repeat(${n},minmax(0,1fr))`);
   add("flex-1", "flex:1");
   add("flex-wrap", "flex-wrap:wrap");
 
   // spacing (rem)
-  const sp: Record<number, string> = { 0: "0", 1: ".25rem", 2: ".5rem", 3: ".75rem", 4: "1rem", 5: "1.5rem", 6: "2rem", 8: "3rem" };
+  const sp: Record<number, string> = {
+    0: "0",
+    1: ".25rem",
+    2: ".5rem",
+    3: ".75rem",
+    4: "1rem",
+    5: "1.5rem",
+    6: "2rem",
+    8: "3rem",
+  };
   for (const [n, v] of Object.entries(sp)) {
     add(`p-${n}`, `padding:${v}`);
     add(`px-${n}`, `padding-left:${v};padding-right:${v}`);
@@ -119,9 +143,18 @@ export function generateUtilities(
   add("w-full", "width:100%");
   add("w-auto", "width:auto");
   add("max-w-full", "max-width:100%");
-  for (const t of ["left", "center", "right"]) add(`text-${t}`, `text-align:${t}`);
-  const sizes: Record<string, string> = { xs: ".75rem", sm: ".875rem", base: "1rem", lg: "1.125rem", xl: "1.25rem", "2xl": "1.5rem" };
-  for (const [n, v] of Object.entries(sizes)) add(`text-${n}`, `font-size:${v}`);
+  for (const t of ["left", "center", "right"])
+    add(`text-${t}`, `text-align:${t}`);
+  const sizes: Record<string, string> = {
+    xs: ".75rem",
+    sm: ".875rem",
+    base: "1rem",
+    lg: "1.125rem",
+    xl: "1.25rem",
+    "2xl": "1.5rem",
+  };
+  for (const [n, v] of Object.entries(sizes))
+    add(`text-${n}`, `font-size:${v}`);
   for (const w of [400, 500, 600, 700]) add(`font-${w}`, `font-weight:${w}`);
   add("rounded", "border-radius:.25rem");
   add("rounded-lg", "border-radius:.5rem");
@@ -130,20 +163,27 @@ export function generateUtilities(
   // responsivas: repete compacto (display + flex + grid + spacing essencial)
   for (const [name, px] of Object.entries(bps)) {
     lines.push(`@media (min-width:${px}px){`);
-    for (const d of ["block", "flex", "grid", "hidden"]) add(`${name}:${d}`, `display:${d}`);
+    for (const d of ["block", "flex", "grid", "hidden"])
+      add(`${name}:${d}`, `display:${d}`);
     add(`${name}:flex-col`, "flex-direction:column");
     add(`${name}:flex-row`, "flex-direction:row");
     add(`${name}:items-center`, "align-items:center");
     add(`${name}:justify-center`, "justify-content:center");
     add(`${name}:justify-between`, "justify-content:space-between");
-    for (let n = 2; n <= 4; n++) add(`${name}:grid-cols-${n}`, `grid-template-columns:repeat(${n},minmax(0,1fr))`);
+    for (let n = 2; n <= 4; n++)
+      add(
+        `${name}:grid-cols-${n}`,
+        `grid-template-columns:repeat(${n},minmax(0,1fr))`,
+      );
     for (const [n, v] of Object.entries(sp)) {
       add(`${name}:p-${n}`, `padding:${v}`);
       add(`${name}:m-${n}`, `margin:${v}`);
       add(`${name}:gap-${n}`, `gap:${v}`);
     }
-    for (const t of ["left", "center", "right"]) add(`${name}:text-${t}`, `text-align:${t}`);
-    for (const [sn, sv] of Object.entries(sizes)) add(`${name}:text-${sn}`, `font-size:${sv}`);
+    for (const t of ["left", "center", "right"])
+      add(`${name}:text-${t}`, `text-align:${t}`);
+    for (const [sn, sv] of Object.entries(sizes))
+      add(`${name}:text-${sn}`, `font-size:${sv}`);
     add(`${name}:w-full`, "width:100%");
     lines.push("}");
   }
@@ -155,7 +195,7 @@ export function generateUtilities(
 export function collectStyles(
   scan: ScanResult,
   componentCss: (file: string) => string,
-  enableUtilities = true
+  enableUtilities = true,
 ): string {
   const parts: string[] = [];
   if (enableUtilities) parts.push(generateUtilities());

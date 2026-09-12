@@ -13,18 +13,30 @@ test("SSG: pré-renderiza páginas estáticas e dinâmicas", async () => {
   const b = createBuild(scan, { appDir, siteUrl: "https://fly.dev" });
   await b.build();
 
-  const index = readFileSync(join(process.cwd(), ".fly-out", "index.html"), "utf8");
+  const index = readFileSync(
+    join(process.cwd(), ".fly-out", "index.html"),
+    "utf8",
+  );
   assert.match(index, /Bem-vindo ao/);
   assert.match(index, /__flyMount/);
 
-  const hello = readFileSync(join(process.cwd(), ".fly-out", "blog", "hello.html"), "utf8");
+  const hello = readFileSync(
+    join(process.cwd(), ".fly-out", "blog", "hello.html"),
+    "utf8",
+  );
   assert.match(hello, /Post hello/);
   assert.match(hello, /<title>Post hello<\/title>/);
 
-  const contact = readFileSync(join(process.cwd(), ".fly-out", "contact.html"), "utf8");
+  const contact = readFileSync(
+    join(process.cwd(), ".fly-out", "contact.html"),
+    "utf8",
+  );
   assert.match(contact, /data-fly-action="addTodo"/);
 
-  const mundo = readFileSync(join(process.cwd(), ".fly-out", "blog", "mundo.html"), "utf8");
+  const mundo = readFileSync(
+    join(process.cwd(), ".fly-out", "blog", "mundo.html"),
+    "utf8",
+  );
   assert.match(mundo, /Post mundo/);
 });
 

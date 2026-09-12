@@ -6,7 +6,10 @@ import { join } from "node:path";
 
 const appDir = join(process.cwd(), "examples", "real-app");
 const scan = scanApp(appDir);
-const pipeline = createPipeline(scan, { appDir, siteUrl: "https://loja.fly.dev" });
+const pipeline = createPipeline(scan, {
+  appDir,
+  siteUrl: "https://loja.fly.dev",
+});
 
 async function call(path: string) {
   return pipeline.handle(new Request("http://localhost" + path));

@@ -11,11 +11,19 @@ export class Session {
     this.secret = secret;
     this.data = data;
   }
-  get(key: string): any { return this.data[key]; }
-  set(key: string, val: any): void { this.data[key] = val; }
-  delete(key: string): void { delete this.data[key]; }
+  get(key: string): any {
+    return this.data[key];
+  }
+  set(key: string, val: any): void {
+    this.data[key] = val;
+  }
+  delete(key: string): void {
+    delete this.data[key];
+  }
   toCookie(): string {
-    const payload = Buffer.from(JSON.stringify(this.data)).toString("base64url");
+    const payload = Buffer.from(JSON.stringify(this.data)).toString(
+      "base64url",
+    );
     const sig = signData(payload, this.secret);
     return `${payload}.${sig}`;
   }
@@ -26,7 +34,9 @@ export class Session {
     const sig = cookie.slice(dot + 1);
     if (!verifyData(payload, sig, secret)) return null;
     try {
-      const data = JSON.parse(Buffer.from(payload, "base64url").toString("utf8"));
+      const data = JSON.parse(
+        Buffer.from(payload, "base64url").toString("utf8"),
+      );
       return new Session(secret, data);
     } catch {
       return null;
@@ -45,7 +55,9 @@ function verifyData(payload: string, sig: string, secret: string): boolean {
   } catch {
     return false;
   }
-  return provided.length === expected.length && timingSafeEqual(provided, expected);
+  return (
+    provided.length === expected.length && timingSafeEqual(provided, expected)
+  );
 }
 
 // Helper de conveniência para uso em loaders/actions ("use server").
@@ -60,8 +72,16 @@ export function createSessionStore(secret: string) {
       const s = new Session(secret, data);
       return s;
     },
-    cookieHeader(session: Session, options = {} as Record<string, string>): string {
-      const parts = [`fly_session=${session.toCookie()}`, "Path=/", "HttpOnly", "SameSite=Lax"];
+    cookieHeader(
+      session: Session,
+      options = {} as Record<string, string>,
+    ): string {
+      const parts = [
+        `fly_session=${session.toCookie()}`,
+        "Path=/",
+        "HttpOnly",
+        "SameSite=Lax",
+      ];
       if (options.maxAge) parts.push(`Max-Age=${options.maxAge}`);
       if (options.secure) parts.push("Secure");
       return parts.join("; ");
@@ -73,7 +93,10 @@ export function createSessionStore(secret: string) {
 type RateBucket = { count: number; reset: number };
 const rateStore = new Map<string, RateBucket>();
 
-export function rateLimit(key: string, opts: { limit?: number; windowMs?: number } = {}): { allowed: boolean; remaining: number; reset: number } {
+export function rateLimit(
+  key: string,
+  opts: { limit?: number; windowMs?: number } = {},
+): { allowed: boolean; remaining: number; reset: number } {
   const limit = opts.limit ?? 60;
   const windowMs = opts.windowMs ?? 60_000;
   const now = Date.now();
@@ -84,12 +107,23 @@ export function rateLimit(key: string, opts: { limit?: number; windowMs?: number
   }
   bucket.count++;
   const allowed = bucket.count <= limit;
-  if (bucket.count > limit && Date.now() - bucket.reset > windowMs) rateStore.delete(key);
-  return { allowed, remaining: Math.max(0, limit - bucket.count), reset: bucket.reset };
+  if (bucket.count > limit && Date.now() - bucket.reset > windowMs)
+    rateStore.delete(key);
+  return {
+    allowed,
+    remaining: Math.max(0, limit - bucket.count),
+    reset: bucket.reset,
+  };
 }
 
-export function rateLimitClient(request: Request, opts?: { limit?: number; windowMs?: number }): { allowed: boolean; remaining: number; reset: number; key: string } {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || request.headers.get("x-real-ip") || "unknown";
+export function rateLimitClient(
+  request: Request,
+  opts?: { limit?: number; windowMs?: number },
+): { allowed: boolean; remaining: number; reset: number; key: string } {
+  const ip =
+    request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ||
+    request.headers.get("x-real-ip") ||
+    "unknown";
   const key = "rl:" + ip + ":" + request.url;
   return { ...rateLimit(key, opts), key };
 }
@@ -104,7 +138,10 @@ export function csrfToken(request: Request): string {
   return fresh;
 }
 
-export function verifyCsrf(request: Request, expected?: string | null): boolean {
+export function verifyCsrf(
+  request: Request,
+  expected?: string | null,
+): boolean {
   const cookieHeader = request.headers.get("cookie") ?? "";
   const cookie = parseCookies(cookieHeader)["fly_csrf"];
   if (!cookie || !expected) return false;

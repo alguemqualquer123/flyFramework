@@ -13,9 +13,12 @@ export type Meta = {
 export function renderHead(meta: Meta = {}, siteUrl = ""): string {
   let h = "";
   if (meta.title) h += `  <title>${escapeHtml(meta.title)}</title>\n`;
-  if (meta.description) h += `  <meta name="description" content="${escapeAttr(meta.description)}">\n`;
-  if (meta.canonical) h += `  <link rel="canonical" href="${escapeAttr(meta.canonical)}">\n`;
-  if (siteUrl) h += `  <meta property="og:site_name" content="${escapeAttr(siteUrl)}">\n`;
+  if (meta.description)
+    h += `  <meta name="description" content="${escapeAttr(meta.description)}">\n`;
+  if (meta.canonical)
+    h += `  <link rel="canonical" href="${escapeAttr(meta.canonical)}">\n`;
+  if (siteUrl)
+    h += `  <meta property="og:site_name" content="${escapeAttr(siteUrl)}">\n`;
   for (const [k, v] of Object.entries(meta.openGraph ?? {})) {
     h += `  <meta property="og:${escapeAttr(k)}" content="${escapeAttr(v)}">\n`;
   }

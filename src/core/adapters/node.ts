@@ -3,10 +3,18 @@ import { createServer } from "node:http";
 import { Readable } from "node:stream";
 import { scanApp } from "../../router/scanner.ts";
 import { createPipeline, type FlyConfig } from "../pipeline.ts";
+import { createHmr } from "../hmr.ts";
 
 export function startNodeServer(config: FlyConfig, port = 3000) {
+  const isDev = (config as any).dev ?? true;
   const scan = scanApp(config.appDir);
-  const pipeline = createPipeline(scan, config);
+  const pipeline = createPipeline(scan, { ...config, dev: isDev });
+  let hmr: ReturnType<typeof createHmr> | null = null;
+  if (isDev) {
+    hmr = createHmr(config.appDir);
+    (pipeline.handle as any).__hmr = hmr;
+    hmr.watchApp();
+  }
 
   const server = createServer(async (req, res) => {
     const host = req.headers.host ?? `localhost:${port}`;
@@ -45,7 +53,9 @@ export function startNodeServer(config: FlyConfig, port = 3000) {
   });
 
   server.listen(port, () => {
-    console.log(`Fly dev server em http://localhost:${port}  (${scan.pages.length} páginas, ${scan.apis.length} APIs)`);
+    console.log(
+      `Fly dev server em http://localhost:${port}  (${scan.pages.length} páginas, ${scan.apis.length} APIs)`,
+    );
   });
   return server;
 }

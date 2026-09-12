@@ -7,7 +7,11 @@ class DataCache {
   private store = new Map<string, Entry>();
   private tags = new Map<string, Set<string>>();
 
-  async fetch<T>(key: string, producer: () => Promise<T> | T, opts: CacheOpts = {}): Promise<T> {
+  async fetch<T>(
+    key: string,
+    producer: () => Promise<T> | T,
+    opts: CacheOpts = {},
+  ): Promise<T> {
     const hit = this.store.get(key);
     if (hit && hit.expires > Date.now()) return hit.value as T;
     const value = await producer();

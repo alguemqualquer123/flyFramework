@@ -4,6 +4,38 @@
 let currentEffect = null;
 const effectStack = [];
 
+// Registro de signals por nome (usado pelo HMR para snapshot/restore).
+const _signalRegistry = new Map();
+
+export function __flyRegisterState(name, sig) {
+  if (name && sig && typeof sig.get === "function")
+    _signalRegistry.set(name, sig);
+}
+
+if (typeof window !== "undefined") {
+  window.__flySnapshotState = () => {
+    const out = {};
+    for (const [k, s] of _signalRegistry) {
+      try {
+        const v = s.peek ? s.peek() : s.get();
+        if (typeof v !== "function") out[k] = v;
+      } catch {}
+    }
+    return out;
+  };
+  window.__flyRestoreState = (data) => {
+    if (!data) return;
+    for (const [k, v] of Object.entries(data)) {
+      const s = _signalRegistry.get(k);
+      if (s && typeof s.set === "function") {
+        try {
+          s.set(v);
+        } catch {}
+      }
+    }
+  };
+}
+
 export function signal(initial) {
   let value = initial;
   const subs = new Set();
@@ -25,7 +57,9 @@ export function effect(fn) {
     run() {
       effectStack.push(e);
       currentEffect = e;
-      try { fn(); } finally {
+      try {
+        fn();
+      } finally {
         effectStack.pop();
         currentEffect = effectStack[effectStack.length - 1] || null;
       }
@@ -65,7 +99,9 @@ export function h(tag, props, ...children) {
 
 export function text(fn) {
   const node = document.createTextNode("");
-  effect(() => { node.nodeValue = String(fn() ?? ""); });
+  effect(() => {
+    node.nodeValue = String(fn() ?? "");
+  });
   return node;
 }
 
@@ -97,27 +133,37 @@ export function hFor(items, build) {
     block = [];
     for (const item of list) {
       const nodes = build(item);
-      nodes.forEach((n) => { anchor.parentNode.insertBefore(n, anchor); block.push(n); });
+      nodes.forEach((n) => {
+        anchor.parentNode.insertBefore(n, anchor);
+        block.push(n);
+      });
     }
   });
   return anchor;
 }
 
 export function bindClass(el, name, test) {
-  effect(() => { el.classList.toggle(name, !!test()); });
+  effect(() => {
+    el.classList.toggle(name, !!test());
+  });
 }
 
 export function bindStyle(el, prop, value) {
-  effect(() => { el.style.setProperty(prop, String(value())); });
+  effect(() => {
+    el.style.setProperty(prop, String(value()));
+  });
 }
 
 export function bindValue(el, sig) {
-  effect(() => { if (document.activeElement !== el) el.value = sig.get(); });
+  effect(() => {
+    if (document.activeElement !== el) el.value = sig.get();
+  });
   el.addEventListener("input", () => sig.set(el.value));
 }
 
 // Anima a entrada/saída de um elemento (transition:fade|slide|zoom).
-const CS = typeof document !== "undefined" ? document.createElement("style") : null;
+const CS =
+  typeof document !== "undefined" ? document.createElement("style") : null;
 if (CS) {
   CS.textContent =
     ".fly-fade-enter{animation:fly-fade .3s ease}@keyframes fly-fade{from{opacity:0}}." +
@@ -129,7 +175,9 @@ if (CS) {
 export function bindTransition(el, type) {
   const cls = "fly-" + (type || "fade") + "-enter";
   el.classList.add(cls);
-  el.addEventListener("animationend", () => el.classList.remove(cls), { once: true });
+  el.addEventListener("animationend", () => el.classList.remove(cls), {
+    once: true,
+  });
 }
 
 export function mountRoot(target, build) {
@@ -137,22 +185,36 @@ export function mountRoot(target, build) {
   const node = build();
   target.appendChild(node);
   const cbs = _mountCbs.splice(0);
-  for (const cb of cbs) { try { cb(); } catch (_e) {} }
+  for (const cb of cbs) {
+    try {
+      cb();
+    } catch (_e) {}
+  }
   return () => {
-    for (const cb of _destroyCbs.splice(0)) { try { cb(); } catch (_e) {} }
+    for (const cb of _destroyCbs.splice(0)) {
+      try {
+        cb();
+      } catch (_e) {}
+    }
   };
 }
 
 // ---------- API estilo Svelte ----------
 export function derived(fn) {
   const d = signal(undefined);
-  effect(() => { d.set(fn()); });
+  effect(() => {
+    d.set(fn());
+  });
   return d;
 }
 
 export function writable(initial) {
   const s = signal(initial);
-  s.subscribe = (cb) => { cb(s.peek()); const e = effect(() => cb(s.get())); return () => e; };
+  s.subscribe = (cb) => {
+    cb(s.peek());
+    const e = effect(() => cb(s.get()));
+    return () => e;
+  };
   s.update = (fn) => s.set(fn(s.peek()));
   return s;
 }
@@ -161,7 +223,10 @@ export function readable(initial, start) {
   const s = signal(initial);
   let started = false;
   s.subscribe = (cb) => {
-    if (start && !started) { started = true; start(s.set); }
+    if (start && !started) {
+      started = true;
+      start(s.set);
+    }
     cb(s.peek());
     const e = effect(() => cb(s.get()));
     return () => e;
@@ -182,9 +247,15 @@ export function tick() {
 const _mountCbs = [];
 const _destroyCbs = [];
 
-export function onMount(fn) { _mountCbs.push(fn); }
-export function onDestroy(fn) { _destroyCbs.push(fn); }
-export function props() { return globalThis.__flyProps || {}; }
+export function onMount(fn) {
+  _mountCbs.push(fn);
+}
+export function onDestroy(fn) {
+  _destroyCbs.push(fn);
+}
+export function props() {
+  return globalThis.__flyProps || {};
+}
 
 // ---------- Partial hydration (islands) ----------
 const _islands = new Map();
@@ -200,9 +271,13 @@ function mountIslandNow(reg) {
   if (reg.mounted) return;
   reg.mounted = true;
   const node = reg.build();
-  if (Array.isArray(node)) node.forEach((n) => n && reg.anchor.parentNode.insertBefore(n, reg.anchor));
-  else if (node && node.nodeType) reg.anchor.parentNode.insertBefore(node, reg.anchor);
-  const tpl = document.querySelector(`template[data-fly-isl="${reg.anchor.data.split(":")[1]}"]`);
+  if (Array.isArray(node))
+    node.forEach((n) => n && reg.anchor.parentNode.insertBefore(n, reg.anchor));
+  else if (node && node.nodeType)
+    reg.anchor.parentNode.insertBefore(node, reg.anchor);
+  const tpl = document.querySelector(
+    `template[data-fly-isl="${reg.anchor.data.split(":")[1]}"]`,
+  );
   if (tpl && tpl.parentNode) tpl.remove();
 }
 
@@ -213,13 +288,25 @@ export function dispatchIslands() {
     if (reg.type === "load") {
       mountIslandNow(reg);
     } else if (reg.type === "visible") {
-      if (typeof IntersectionObserver === "undefined") { mountIslandNow(reg); continue; }
-      const ob = new IntersectionObserver((entries) => {
-        for (const en of entries) { if (en.isIntersecting) { mountIslandNow(reg); ob.disconnect(); } }
-      }, { rootMargin: "200px" });
+      if (typeof IntersectionObserver === "undefined") {
+        mountIslandNow(reg);
+        continue;
+      }
+      const ob = new IntersectionObserver(
+        (entries) => {
+          for (const en of entries) {
+            if (en.isIntersecting) {
+              mountIslandNow(reg);
+              ob.disconnect();
+            }
+          }
+        },
+        { rootMargin: "200px" },
+      );
       ob.observe(reg.anchor);
     } else if (reg.type === "idle") {
-      if (typeof requestIdleCallback !== "undefined") requestIdleCallback(() => mountIslandNow(reg));
+      if (typeof requestIdleCallback !== "undefined")
+        requestIdleCallback(() => mountIslandNow(reg));
       else window.addEventListener("load", () => mountIslandNow(reg));
     }
   }
@@ -231,6 +318,82 @@ export function mountSuspense(build) {
   const anchor = document.createComment("suspense");
   const nodes = build();
   return [anchor, ...nodes];
+}
+
+// ---------- Await / streaming por componente ----------
+// promiseFn: () => Promise | valor; render: (data) => Node[]; fallback: html string.
+export function mountAwait(promiseFn, render, fallback) {
+  const anchor = document.createComment("await");
+  const frag = document.createDocumentFragment();
+  frag.appendChild(anchor);
+  let settled = false;
+  const showFallback = () => {
+    if (settled) return;
+    const tmp = document.createElement("template");
+    tmp.innerHTML = String(fallback ?? "");
+    const n = tmp.content.cloneNode(true);
+    anchor.parentNode?.insertBefore(n, anchor.nextSibling);
+    return n;
+  };
+  let fallbackNodes = [];
+  const markFallback = () => {
+    let n = anchor.nextSibling;
+    while (n && !(n.nodeType === 8 && n.nodeValue === "/await")) {
+      const next = n.nextSibling;
+      fallbackNodes.push(n);
+      n = next;
+      if (!n) break;
+    }
+  };
+  try {
+    const p = promiseFn();
+    if (p && typeof p.then === "function") {
+      queueMicrotask(() => {
+        if (!settled && anchor.parentNode) showFallback();
+      });
+      p.then(
+        (data) => {
+          settled = true;
+          for (const n of fallbackNodes) n.remove();
+          fallbackNodes = [];
+          const nodes = render(data);
+          const list = Array.isArray(nodes) ? nodes : [nodes];
+          if (anchor.parentNode) {
+            for (const x of list) {
+              if (!x) continue;
+              if (Array.isArray(x))
+                x.forEach(
+                  (y) =>
+                    y && anchor.parentNode.insertBefore(y, anchor.nextSibling),
+                );
+              else if (x.nodeType)
+                anchor.parentNode.insertBefore(x, anchor.nextSibling);
+            }
+          }
+        },
+        () => {
+          settled = true;
+        },
+      );
+    } else {
+      const nodes = render(p);
+      const list = Array.isArray(nodes) ? nodes : [nodes];
+      const end = document.createComment("/await");
+      frag.appendChild(end);
+      for (const x of list) {
+        if (!x) continue;
+        if (Array.isArray(x)) x.forEach((y) => y && frag.insertBefore(y, end));
+        else if (x.nodeType) frag.insertBefore(x, end);
+      }
+      return frag;
+    }
+  } catch {
+    // erro síncrono: só fallback
+  }
+  const end = document.createComment("/await");
+  frag.appendChild(end);
+  queueMicrotask(markFallback);
+  return frag;
 }
 
 // ---------- Drag & drop (helpers nativos) ----------
@@ -249,7 +412,9 @@ export function draggable(el, data) {
   el.draggable = true;
   el.addEventListener("dragstart", (e) => {
     el.dataset.flyDnd = "1";
-    if (e.dataTransfer) { e.dataTransfer.effectAllowed = "move"; }
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = "move";
+    }
     e.detail = e.detail || {};
     e.target.__flyDragData = data;
   });
@@ -258,14 +423,20 @@ export function draggable(el, data) {
 
 // dropTarget: converte o elemento em alvo de drop; chama onDrop(dados, el, event).
 export function dropTarget(el, onDrop) {
-  const allow = (e) => { if (e.preventDefault) e.preventDefault(); if (e.dataTransfer) e.dataTransfer.dropEffect = "move"; };
+  const allow = (e) => {
+    if (e.preventDefault) e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+  };
   el.addEventListener("dragover", allow);
   el.addEventListener("drop", (e) => {
     allow(e);
     const src = e.target;
     let data = src && src.__flyDragData;
     if (data === undefined && e.dataTransfer) {
-      try { const raw = e.dataTransfer.getData("application/json"); if (raw) data = JSON.parse(raw); } catch {}
+      try {
+        const raw = e.dataTransfer.getData("application/json");
+        if (raw) data = JSON.parse(raw);
+      } catch {}
     }
     if (typeof onDrop === "function") onDrop(data, el, e);
   });
@@ -300,11 +471,10 @@ export function bindDragReorder(container, opt) {
     const from = items.findIndex((it) => it === e.target.__flyDragData?.item);
     const to = items.indexOf(src);
     if (from === -1) return;
-    const list = opt.getList ? opt.getList() : items.map((it) => it.__flyDragData?.item);
+    const list = opt.getList
+      ? opt.getList()
+      : items.map((it) => it.__flyDragData?.item);
     cb(moveItem(list, from, to), { from, to });
   });
   return container;
 }
-
-
-

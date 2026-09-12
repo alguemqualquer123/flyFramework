@@ -5,28 +5,53 @@ import { parseTemplate } from "../src/compiler/parser.ts";
 import { analyzeScript } from "../src/compiler/analyzer.ts";
 
 test("SSR renderiza interpolação e estado", () => {
-  const c = compile(`<script>let nome = $state("Fly")</script><h1>Olá {nome}</h1>`);
-  const out = c.render({ params: {}, request: new Request("http://x/"), url: new URL("http://x/"), cache: {} });
+  const c = compile(
+    `<script>let nome = $state("Fly")</script><h1>Olá {nome}</h1>`,
+  );
+  const out = c.render({
+    params: {},
+    request: new Request("http://x/"),
+    url: new URL("http://x/"),
+    cache: {},
+  });
   return out.then((o) => assert.match(o.html, /<h1>Olá Fly<\/h1>/));
 });
 
 test("SSR condicional (if)", () => {
-  const c = compile(`<script>let ok = $state(true)</script><p if={ok}>sim</p><p if={!ok}>não</p>`);
-  return c.render({ params: {}, request: new Request("http://x/"), url: new URL("http://x/"), cache: {} }).then((o) => {
-    assert.match(o.html, /<p>sim<\/p>/);
-    assert.doesNotMatch(o.html, /<p>não<\/p>/);
-  });
+  const c = compile(
+    `<script>let ok = $state(true)</script><p if={ok}>sim</p><p if={!ok}>não</p>`,
+  );
+  return c
+    .render({
+      params: {},
+      request: new Request("http://x/"),
+      url: new URL("http://x/"),
+      cache: {},
+    })
+    .then((o) => {
+      assert.match(o.html, /<p>sim<\/p>/);
+      assert.doesNotMatch(o.html, /<p>não<\/p>/);
+    });
 });
 
 test("SSR loop (for)", () => {
   const c = compile(`<ul><li for={n of [1,2,3]}>#{n}</li></ul>`);
-  return c.render({ params: {}, request: new Request("http://x/"), url: new URL("http://x/"), cache: {} }).then((o) => {
-    assert.match(o.html, /<li>#1<\/li><li>#2<\/li><li>#3<\/li>/);
-  });
+  return c
+    .render({
+      params: {},
+      request: new Request("http://x/"),
+      url: new URL("http://x/"),
+      cache: {},
+    })
+    .then((o) => {
+      assert.match(o.html, /<li>#1<\/li><li>#2<\/li><li>#3<\/li>/);
+    });
 });
 
 test("client gera signals reativos (get/set)", () => {
-  const c = compile(`<script>let count = $state(0)</script><button on:click={count++}>{count}</button>`);
+  const c = compile(
+    `<script>let count = $state(0)</script><button on:click={count++}>{count}</button>`,
+  );
   assert.match(c.clientCode, /signal\(0\)/);
   assert.match(c.clientCode, /count\.set\(count\.get\(\)\+1\)/);
   assert.match(c.clientCode, /count\.get\(\)/);
@@ -36,26 +61,47 @@ test("loader roda no server e alimenta template", () => {
   const c = compile(`<script>
     export async function loader() { return { v: 42 } }
   </script><p>{data.v}</p>`);
-  return c.render({ params: {}, request: new Request("http://x/"), url: new URL("http://x/"), cache: {} }).then((o) => {
-    assert.match(o.html, /<p>42<\/p>/);
-  });
+  return c
+    .render({
+      params: {},
+      request: new Request("http://x/"),
+      url: new URL("http://x/"),
+      cache: {},
+    })
+    .then((o) => {
+      assert.match(o.html, /<p>42<\/p>/);
+    });
 });
 
 test("meta gera SEO", () => {
   const c = compile(`<script>
     export function meta() { return { title: "X", description: "Y" } }
   </script><div>ok</div>`);
-  return c.render({ params: {}, request: new Request("http://x/"), url: new URL("http://x/"), cache: {} }).then((o) => {
-    assert.ok(o.meta);
-    assert.equal(o.meta!({ data: {}, params: {} }).title, "X");
-  });
+  return c
+    .render({
+      params: {},
+      request: new Request("http://x/"),
+      url: new URL("http://x/"),
+      cache: {},
+    })
+    .then((o) => {
+      assert.ok(o.meta);
+      assert.equal(o.meta!({ data: {}, params: {} }).title, "X");
+    });
 });
 
 test("escapa HTML em interpolações", () => {
   const c = compile(`<script>let x = $state("<b>")</script><p>{x}</p>`);
-  return c.render({ params: {}, request: new Request("http://x/"), url: new URL("http://x/"), cache: {} }).then((o) => {
-    assert.match(o.html, /&lt;b&gt;/);
-  });
+  return c
+    .render({
+      params: {},
+      request: new Request("http://x/"),
+      url: new URL("http://x/"),
+      cache: {},
+    })
+    .then((o) => {
+      assert.match(o.html, /&lt;b&gt;/);
+    });
 });
 
 test("parser: atributo com > dentro de expressão", () => {
@@ -73,7 +119,9 @@ test("analyzer detecta estado reativo", () => {
 });
 
 test("analyzer detecta $derived e stores", () => {
-  const a = analyzeScript(`let d = $derived(() => 1); let w = writable(0); let r = readable(0);`);
+  const a = analyzeScript(
+    `let d = $derived(() => 1); let w = writable(0); let r = readable(0);`,
+  );
   assert.deepEqual(a.derivedVars, ["d"]);
   assert.deepEqual(a.storeVars, ["w", "r"]);
 });
@@ -95,9 +143,16 @@ test("SSR: $derived e $state viram valores planos", () => {
     let count = $state(2)
     let double = $derived(() => count * 2)
   </script><p>{double}</p>`);
-  return c.render({ params: {}, request: new Request("http://x/"), url: new URL("http://x/"), cache: {} }).then((o) => {
-    assert.match(o.html, /<p>4<\/p>/);
-  });
+  return c
+    .render({
+      params: {},
+      request: new Request("http://x/"),
+      url: new URL("http://x/"),
+      cache: {},
+    })
+    .then((o) => {
+      assert.match(o.html, /<p>4<\/p>/);
+    });
 });
 
 test("SSR: onMount/writable são no-ops no server", () => {
@@ -105,8 +160,14 @@ test("SSR: onMount/writable são no-ops no server", () => {
     let s = writable(7)
     onMount(() => {})
   </script><p>{s}</p>`);
-  return c.render({ params: {}, request: new Request("http://x/"), url: new URL("http://x/"), cache: {} }).then((o) => {
-    assert.match(o.html, /<p>7<\/p>/);
-  });
+  return c
+    .render({
+      params: {},
+      request: new Request("http://x/"),
+      url: new URL("http://x/"),
+      cache: {},
+    })
+    .then((o) => {
+      assert.match(o.html, /<p>7<\/p>/);
+    });
 });
-

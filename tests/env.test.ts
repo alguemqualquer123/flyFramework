@@ -30,8 +30,16 @@ test("client: inlining de PUBLIC_ e ofuscação de segredos", () => {
 
 test("SSR: import.meta.env disponível no server (inclui process.env)", async () => {
   process.env.PUBLIC_FROM_PROC = "proc-val";
-  const c = compile(`<script></script><p>{import.meta.env.PUBLIC_FROM_PROC}</p>`);
-  const out = await c.render({ params: {}, request: new Request("http://x/"), url: new URL("http://x/"), cache: {}, env: { PUBLIC_FROM_PROC: "proc-val" } });
+  const c = compile(
+    `<script></script><p>{import.meta.env.PUBLIC_FROM_PROC}</p>`,
+  );
+  const out = await c.render({
+    params: {},
+    request: new Request("http://x/"),
+    url: new URL("http://x/"),
+    cache: {},
+    env: { PUBLIC_FROM_PROC: "proc-val" },
+  });
   assert.match(out.html, /proc-val/);
   delete process.env.PUBLIC_FROM_PROC;
 });

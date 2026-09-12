@@ -1,11 +1,23 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { signal, derived, effect, writable, readable, get, tick, onMount, onDestroy } from "../src/runtime/client.js";
+import {
+  signal,
+  derived,
+  effect,
+  writable,
+  readable,
+  get,
+  tick,
+  onMount,
+  onDestroy,
+} from "../src/runtime/client.js";
 
 test("signal: get/set e notificação de efeito", () => {
   const count = signal(0);
   let seen = -1;
-  effect(() => { seen = count.get(); });
+  effect(() => {
+    seen = count.get();
+  });
   assert.equal(seen, 0);
   count.set(5);
   assert.equal(seen, 5);
@@ -40,7 +52,9 @@ test("writable: subscribe/get/update", () => {
 
 test("readable: start é chamado no primeiro subscribe", () => {
   let started = false;
-  const r = readable(0, () => { started = true; });
+  const r = readable(0, () => {
+    started = true;
+  });
   assert.equal(started, false);
   r.subscribe(() => {});
   assert.equal(started, true);
@@ -51,7 +65,9 @@ test("effect: para de reagir após remoção de dependência", () => {
   const a = signal(1);
   const toggle = signal(true);
   let n = 0;
-  effect(() => { if (toggle.get()) n = a.get(); });
+  effect(() => {
+    if (toggle.get()) n = a.get();
+  });
   assert.equal(n, 1);
   a.set(2);
   assert.equal(n, 2);

@@ -11,6 +11,8 @@ export interface FlyContext {
   url: URL;
   cache: unknown;
   env: Record<string, string>;
+  locale?: string;
+  t?: (key: string, vars?: Record<string, string | number>) => string;
 }
 
 export type Loader<T = unknown> = (ctx: FlyContext) => T | Promise<T>;
@@ -55,9 +57,9 @@ export interface FormProps {
 }
 
 // Componente genérico .fly (props + slots)
-export type FlyComponent<P extends Record<string, unknown> = Record<string, unknown>> = (
-  props: P & FlySlotProps
-) => unknown;
+export type FlyComponent<
+  P extends Record<string, unknown> = Record<string, unknown>,
+> = (props: P & FlySlotProps) => unknown;
 
 // Helpers injetados no SSR (server-only) — veja src/core/utils.ts
 export interface FlyServerHelpers {

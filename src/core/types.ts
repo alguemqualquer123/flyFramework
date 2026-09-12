@@ -6,7 +6,9 @@ import { hashFile } from "./css.ts";
 // Infere o tipo de um mapa de params a partir de uma rota com placeholders [x]/:x/catch-all.
 export function paramsTypeOf(route: string): string {
   const names: string[] = [];
-  for (const m of route.matchAll(/(?:\[([\w-]+)\]|:(\w+)(?:\*)?|\.\.\.([\w-]+))/g)) {
+  for (const m of route.matchAll(
+    /(?:\[([\w-]+)\]|:(\w+)(?:\*)?|\.\.\.([\w-]+))/g,
+  )) {
     const n = m[1] ?? m[2] ?? m[3];
     if (n && !names.includes(n)) names.push(n);
   }
@@ -20,7 +22,10 @@ export function generateRouteTypes(scan: ScanResult): string {
     .map((p) => `    ${JSON.stringify(p.route)}: ${paramsTypeOf(p.route)};`)
     .join("\n");
   const apiEntries = scan.apis
-    .map((a) => `    ${JSON.stringify(a.route)}: { params: ${paramsTypeOf(a.route)}; methods: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" };`)
+    .map(
+      (a) =>
+        `    ${JSON.stringify(a.route)}: { params: ${paramsTypeOf(a.route)}; methods: "GET" | "POST" | "PUT" | "PATCH" | "DELETE" };`,
+    )
     .join("\n");
   const actionEntries = scan.actionFiles
     .map((f) => `    ${JSON.stringify(f)}: string[];`)
@@ -51,7 +56,10 @@ export { };`;
 }
 
 // Concatena os tipos utilitários (inline) mais os tipos das rotas do app em um único .d.ts.
-export function generateTypes(scan: ScanResult, opts: { importBase?: string } = {}): string {
+export function generateTypes(
+  scan: ScanResult,
+  opts: { importBase?: string } = {},
+): string {
   const base = opts.importBase ?? ".";
   return `// Gerado por Fly — declareTypes gerado automaticamente no build.
 // Tipos utilitários do core

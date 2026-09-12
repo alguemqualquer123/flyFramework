@@ -2,8 +2,17 @@
 import { readFileSync } from "node:fs";
 import { parseTemplate, type Node } from "./parser.ts";
 import { analyzeScript, type Analyzed } from "./analyzer.ts";
-import { generateServer, generateClient, generateActionClient, actionId } from "./codegen.ts";
-import { applyAstPlugins, applyClientPlugins, applySourcePlugins } from "./plugins.ts";
+import {
+  generateServer,
+  generateClient,
+  generateActionClient,
+  actionId,
+} from "./codegen.ts";
+import {
+  applyAstPlugins,
+  applyClientPlugins,
+  applySourcePlugins,
+} from "./plugins.ts";
 import { escapeHtml, escapeAttr } from "../runtime/server.ts";
 import { makeFlyUtils, FlyRedirect, FlyNotFound } from "../core/utils.ts";
 import { hashFile } from "../core/css.ts";
@@ -11,6 +20,7 @@ import { hashFile } from "../core/css.ts";
 export type ServerOut = {
   html: string;
   data: any;
+  deferred?: Array<Promise<{ id: string; html: string; error?: string }>>;
   meta: ((ctx: any) => any) | null;
   api: Record<string, (ctx: any) => Promise<any> | any>;
   actions: Record<string, (ctx: any) => Promise<any> | any>;
@@ -36,10 +46,16 @@ export type SsrCtx = {
   slots?: Record<string, string>;
   data?: any;
   env?: Record<string, string>;
+  locale?: string;
+  t?: (key: string, vars?: Record<string, string | number>) => string;
   flyUtils?: ReturnType<typeof makeFlyUtils>;
 };
 
-export function extractSections(source: string): { script: string; style: string; template: string } {
+export function extractSections(source: string): {
+  script: string;
+  style: string;
+  template: string;
+} {
   const dirMatch = /^["']use\s+(client|server)["']\s*;?\s*/.exec(source);
   if (dirMatch) {
     // Módulo de diretiva no topo do arquivo (ex.: "use server"): todo o conteúdo é script.
@@ -62,8 +78,13 @@ export function setCompileEnv(env: Record<string, string>) {
   compPublicEnv = env ?? {};
 }
 
-export function compile(source: string, opts: { file?: string; publicEnv?: Record<string, string> } = {}): Compiled {
-  const { script, style, template } = extractSections(applySourcePlugins(source));
+export function compile(
+  source: string,
+  opts: { file?: string; publicEnv?: Record<string, string> } = {},
+): Compiled {
+  const { script, style, template } = extractSections(
+    applySourcePlugins(source),
+  );
   let ast: Node[] = parseTemplate(template);
   const analyzed = analyzeScript(script);
   const file = opts.file ?? "unknown";
@@ -73,10 +94,21 @@ export function compile(source: string, opts: { file?: string; publicEnv?: Recor
   // Aplica plugins (AST hook)
   ast = applyAstPlugins(ast);
 
-  const ssrBody = generateServer(ast, analyzed, script.replace(/export\s+/g, ""), scope);
-  const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor as any;
+  const ssrBody = generateServer(
+    ast,
+    analyzed,
+    script.replace(/export\s+/g, ""),
+    scope,
+  );
+  const AsyncFunction = Object.getPrototypeOf(async function () {})
+    .constructor as any;
   const render = (ctx: SsrCtx): Promise<ServerOut> => {
-    const fn = new AsyncFunction("ctx", "escapeHtml", "escapeAttr", ssrBody) as (c: SsrCtx) => Promise<ServerOut>;
+    const fn = new AsyncFunction(
+      "ctx",
+      "escapeHtml",
+      "escapeAttr",
+      ssrBody,
+    ) as (c: SsrCtx) => Promise<ServerOut>;
     return fn(ctx, escapeHtml, escapeAttr);
   };
 
@@ -96,16 +128,27 @@ export function compile(source: string, opts: { file?: string; publicEnv?: Recor
         "revalidatePath",
         "redirect",
         "notFound",
-        "return (" + src.replace("export ", "") + ")(...args)"
+        "return (" + src.replace("export ", "") + ")(...args)",
       ) as any;
       actionFns[id] = (args: any[], request: Request) => {
         const u = makeFlyUtils({ request });
-        return factory(args, request, globalFlyCache, u.revalidateTag, u.revalidatePath, u.redirect, u.notFound);
+        return factory(
+          args,
+          request,
+          globalFlyCache,
+          u.revalidateTag,
+          u.revalidatePath,
+          u.redirect,
+          u.notFound,
+        );
       };
     }
     clientCode = applyClientPlugins(generateActionClient(actionIds), analyzed);
   } else {
-    clientCode = applyClientPlugins(generateClient(ast, analyzed, publicEnv, scope), analyzed);
+    clientCode = applyClientPlugins(
+      generateClient(ast, analyzed, publicEnv, scope),
+      analyzed,
+    );
   }
 
   const compiled: Compiled = {
@@ -118,7 +161,9 @@ export function compile(source: string, opts: { file?: string; publicEnv?: Recor
     scope,
   };
   if (analyzed.generateStaticParams) {
-    const factory = new Function("return (" + analyzed.generateStaticParams.replace("export ", "") + ");")() as any;
+    const factory = new Function(
+      "return (" + analyzed.generateStaticParams.replace("export ", "") + ");",
+    )() as any;
     compiled.generateStaticParams = () => factory();
   }
   (compiled as any).__actionFns = actionFns;
@@ -133,7 +178,10 @@ const globalFlyCache = dataCache;
 export { FlyRedirect, FlyNotFound, makeFlyUtils };
 
 // Registry global de server actions (id -> fn), populado em getCompiled.
-export const actionRegistry = new Map<string, (args: any[], request: Request) => Promise<any>>();
+export const actionRegistry = new Map<
+  string,
+  (args: any[], request: Request) => Promise<any>
+>();
 
 const compiledCache = new Map<string, Compiled>();
 export function getCompiled(file: string): Compiled {
@@ -151,4 +199,13 @@ export function getCompiled(file: string): Compiled {
     }
   }
   return c;
+}
+
+// Invalida o cache de um arquivo (usado pelo HMR no dev).
+export function invalidateCompiled(file: string): void {
+  compiledCache.delete(file);
+}
+
+export function clearCompiledCache(): void {
+  compiledCache.clear();
 }

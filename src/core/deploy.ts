@@ -8,11 +8,11 @@ import { join, dirname, relative, resolve } from "node:path";
 import type { ScanResult } from "../router/scanner.ts";
 
 export type DeployOpts = {
-  appDir: string;           // diretório com os .fly
-  outDir?: string;          // .fly-out (default)
+  appDir: string; // diretório com os .fly
+  outDir?: string; // .fly-out (default)
   siteUrl?: string;
   adapter?: "node" | "edge" | "serverless";
-  frameworkRoot?: string;   // raiz que contém src/ do framework (repo)
+  frameworkRoot?: string; // raiz que contém src/ do framework (repo)
 };
 
 function dockerfile(): { rel: string; data: string } {
@@ -28,15 +28,20 @@ function dockerfile(): { rel: string; data: string } {
       "ENV NODE_ENV=production PORT=3000",
       "EXPOSE 3000",
       "",
-      "CMD [\"sh\", \"-c\", \"node src/cli/index.ts start\"]",
+      'CMD ["sh", "-c", "node src/cli/index.ts start"]',
       "",
     ].join("\n"),
   };
 }
 
-function nodeServerEntry(appDir: string, frameworkRoot: string, outDir: string): { rel: string; data: string } {
+function nodeServerEntry(
+  appDir: string,
+  frameworkRoot: string,
+  outDir: string,
+): { rel: string; data: string } {
   const serverDir = join(outDir, "server");
-  const rel = (target: string) => relative(serverDir, target).split("\\").join("/");
+  const rel = (target: string) =>
+    relative(serverDir, target).split("\\").join("/");
   const appDirRel = rel(appDir) || ".";
   const scanner = rel(join(frameworkRoot, "src", "router", "scanner.ts"));
   const pipeline = rel(join(frameworkRoot, "src", "core", "pipeline.ts"));
@@ -50,7 +55,7 @@ function nodeServerEntry(appDir: string, frameworkRoot: string, outDir: string):
     `const appDir = __dir + ${JSON.stringify(appDirRel + "/")};`,
     "const port = Number(process.env.PORT ?? 3000);",
     "const scan = scanApp(appDir);",
-    'const pipeline = createPipeline(scan, { appDir, siteUrl: process.env.SITE_URL });',
+    "const pipeline = createPipeline(scan, { appDir, siteUrl: process.env.SITE_URL });",
     "const server = createServer(async (req, res) => {",
     "  const host = req.headers.host ?? `localhost:${port}`;",
     "  const url = new URL(req.url ?? '/', `http://${host}`);",
@@ -76,13 +81,27 @@ function nodeServerEntry(appDir: string, frameworkRoot: string, outDir: string):
 function vercelJson(): { rel: string; data: string } {
   return {
     rel: "vercel/vercel.json",
-    data: JSON.stringify({ version: 2, cleanUrls: true, trailingSlash: false, rewrites: [{ source: "/(.*)", destination: "/api/__fly" }] }, null, 2),
+    data: JSON.stringify(
+      {
+        version: 2,
+        cleanUrls: true,
+        trailingSlash: false,
+        rewrites: [{ source: "/(.*)", destination: "/api/__fly" }],
+      },
+      null,
+      2,
+    ),
   };
 }
 
-function vercelFn(appDir: string, frameworkRoot: string, outDir: string): { rel: string; data: string } {
+function vercelFn(
+  appDir: string,
+  frameworkRoot: string,
+  outDir: string,
+): { rel: string; data: string } {
   const apiDir = join(outDir, "vercel", "api");
-  const rel = (target: string) => relative(apiDir, target).split("\\").join("/");
+  const rel = (target: string) =>
+    relative(apiDir, target).split("\\").join("/");
   const appDirRel = rel(appDir) || ".";
   const scanner = rel(join(frameworkRoot, "src", "router", "scanner.ts"));
   const pipeline = rel(join(frameworkRoot, "src", "core", "pipeline.ts"));
@@ -93,7 +112,7 @@ function vercelFn(appDir: string, frameworkRoot: string, outDir: string): { rel:
     `const { scanApp } = require(${JSON.stringify(scanner)});`,
     `const { createPipeline } = require(${JSON.stringify(pipeline)});`,
     "const scan = scanApp(appDir);",
-    'const pipeline = createPipeline(scan, { appDir, siteUrl: process.env.SITE_URL });',
+    "const pipeline = createPipeline(scan, { appDir, siteUrl: process.env.SITE_URL });",
     "module.exports = async function handler(req, res) {",
     "  const url = new URL(req.url || '/', 'http://' + (req.headers.host || 'localhost'));",
     "  const hasBody = !['GET','HEAD'].includes(req.method);",
@@ -111,7 +130,11 @@ function vercelFn(appDir: string, frameworkRoot: string, outDir: string): { rel:
   return { rel: "vercel/api/__fly.js", data: body };
 }
 
-export function buildDeploy(outDir: string, _scan: ScanResult, opts: DeployOpts): void {
+export function buildDeploy(
+  outDir: string,
+  _scan: ScanResult,
+  opts: DeployOpts,
+): void {
   const write = (rel: string, data: string) => {
     const full = join(outDir, rel);
     mkdirSync(dirname(full), { recursive: true });
@@ -119,8 +142,14 @@ export function buildDeploy(outDir: string, _scan: ScanResult, opts: DeployOpts)
   };
   const root = opts.frameworkRoot ?? process.cwd();
   write(dockerfile().rel, dockerfile().data);
-  write(nodeServerEntry(opts.appDir, root, outDir).rel, nodeServerEntry(opts.appDir, root, outDir).data);
+  write(
+    nodeServerEntry(opts.appDir, root, outDir).rel,
+    nodeServerEntry(opts.appDir, root, outDir).data,
+  );
   write(vercelJson().rel, vercelJson().data);
-  write(vercelFn(opts.appDir, root, outDir).rel, vercelFn(opts.appDir, root, outDir).data);
+  write(
+    vercelFn(opts.appDir, root, outDir).rel,
+    vercelFn(opts.appDir, root, outDir).data,
+  );
   write("static/.nojekyll", "");
 }

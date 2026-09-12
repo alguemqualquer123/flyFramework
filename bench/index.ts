@@ -27,7 +27,7 @@ function bar(label: string, value: string) {
 async function main() {
   console.log("\n══════════════════════════════════════════════════════");
   console.log("  FLY FRAMEWORK — BENCHMARKS");
-  console.log("  Node " + process.version + " | " + (process.arch));
+  console.log("  Node " + process.version + " | " + process.arch);
   console.log("══════════════════════════════════════════════════════\n");
 
   const files = [...walk(join(ROOT, "examples"))];
@@ -42,7 +42,10 @@ async function main() {
     const t0 = performance.now();
     for (let i = 0; i < N; i++) compile(src);
     const ms = (performance.now() - t0) / N;
-    bar(join("examples", f.split("examples/")[1]), `${fmt(ms)} ms  (${(1000 / ms).toFixed(0)} comp/s)`);
+    bar(
+      join("examples", f.split("examples/")[1]),
+      `${fmt(ms)} ms  (${(1000 / ms).toFixed(0)} comp/s)`,
+    );
   }
 
   // 2) SSR THROUGHPUT
@@ -52,9 +55,18 @@ async function main() {
     const c = compile(src);
     const N = 5000;
     const t0 = performance.now();
-    for (let i = 0; i < N; i++) await c.render({ params: { slug: "x", id: "3" }, request: req, url, cache: dataCache });
+    for (let i = 0; i < N; i++)
+      await c.render({
+        params: { slug: "x", id: "3" },
+        request: req,
+        url,
+        cache: dataCache,
+      });
     const ms = performance.now() - t0;
-    bar(join("examples", f.split("examples/")[1]), `${fmt(N / (ms / 1000))} render/s`);
+    bar(
+      join("examples", f.split("examples/")[1]),
+      `${fmt(N / (ms / 1000))} render/s`,
+    );
   }
 
   // 3) MEMÓRIA
@@ -64,11 +76,15 @@ async function main() {
     const c = compile(readFileSync(f, "utf8"));
     global.gc?.();
     const before = process.memoryUsage().heapUsed;
-    for (let i = 0; i < 5000; i++) await c.render({ params: {}, request: req, url, cache: dataCache });
+    for (let i = 0; i < 5000; i++)
+      await c.render({ params: {}, request: req, url, cache: dataCache });
     global.gc?.();
     const after = process.memoryUsage().heapUsed;
     bar("real-app/index.fly", `${fmt((after - before) / 1024)} KB delta`);
-    bar("heap total agora", `${fmt(process.memoryUsage().heapUsed / 1024 / 1024)} MB`);
+    bar(
+      "heap total agora",
+      `${fmt(process.memoryUsage().heapUsed / 1024 / 1024)} MB`,
+    );
   }
 
   // 4) CACHE (DB simulado 5ms)
@@ -76,12 +92,19 @@ async function main() {
   {
     const db = () => new Promise((r) => setTimeout(() => r("rows"), 5));
     const N = 1000;
-    let miss = 0, hit = 0;
+    let miss = 0,
+      hit = 0;
     const t0 = performance.now();
-    for (let i = 0; i < N; i++) { await dataCache.fetch("bench:" + (i % 10), db, { ttl: 60 }); hit++; }
+    for (let i = 0; i < N; i++) {
+      await dataCache.fetch("bench:" + (i % 10), db, { ttl: 60 });
+      hit++;
+    }
     const cachedMs = performance.now() - t0;
     const t1 = performance.now();
-    for (let i = 0; i < N; i++) { await db(); miss++; }
+    for (let i = 0; i < N; i++) {
+      await db();
+      miss++;
+    }
     const uncachedMs = performance.now() - t1;
     bar("sem cache (1000x DB)", `${fmt(uncachedMs)} ms`);
     bar("com cache (1000x hit)", `${fmt(cachedMs)} ms`);
@@ -95,7 +118,13 @@ async function main() {
     const c = compile(readFileSync(f, "utf8"));
     const N = 5000;
     const t0 = performance.now();
-    for (let i = 0; i < N; i++) await c.render({ params: { id: String(i % 50) }, request: req, url, cache: dataCache });
+    for (let i = 0; i < N; i++)
+      await c.render({
+        params: { id: String(i % 50) },
+        request: req,
+        url,
+        cache: dataCache,
+      });
     const ms = performance.now() - t0;
     bar("products/[id].fly", `${fmt(N / (ms / 1000))} render/s`);
   }
@@ -111,10 +140,16 @@ async function main() {
     // Referência: React 18 + ReactDOM (produção, gzip) ~ 45 KB no client
     const reactRefGz = 45;
     bar("React+ReactDOM (ref gzip)", `~${reactRefGz} KB`);
-    bar("economia vs React", `${fmt((1 - gz / (reactRefGz * 1024)) * 100)}% menor`);
+    bar(
+      "economia vs React",
+      `${fmt((1 - gz / (reactRefGz * 1024)) * 100)}% menor`,
+    );
   }
 
   console.log("\n══════════════════════════════════════════════════════\n");
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

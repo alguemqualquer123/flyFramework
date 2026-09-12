@@ -6,7 +6,15 @@ import { revalidateTag } from "../src/cache/revalidate.ts";
 
 test("dataCache: TTL expira", async () => {
   let calls = 0;
-  const get = () => dataCache.fetch("k1", () => { calls++; return calls; }, { ttl: 1 });
+  const get = () =>
+    dataCache.fetch(
+      "k1",
+      () => {
+        calls++;
+        return calls;
+      },
+      { ttl: 1 },
+    );
   assert.equal(await get(), 1);
   assert.equal(await get(), 1); // hit
   assert.equal(calls, 1);
@@ -16,7 +24,15 @@ test("dataCache: TTL expira", async () => {
 
 test("dataCache: revalidateTag invalida", async () => {
   let calls = 0;
-  const get = () => dataCache.fetch("k2", () => { calls++; return calls; }, { tags: ["t"] });
+  const get = () =>
+    dataCache.fetch(
+      "k2",
+      () => {
+        calls++;
+        return calls;
+      },
+      { tags: ["t"] },
+    );
   assert.equal(await get(), 1);
   assert.equal(await get(), 1);
   revalidateTag("t");

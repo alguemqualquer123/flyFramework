@@ -30,9 +30,21 @@ test("GET /blog/:slug retorna conteúdo (streaming + SEO por document.title)", a
   assert.equal(res.status, 200);
   const html = await res.text();
   assert.match(html, /Conteúdo gerado para hello/);
-  assert.match(html, /document\.title="Post hello"/, "title aplicado no client (streaming)");
-  assert.doesNotMatch(html, /__FLY_HEAD__/, "head placeholder resolvido no streaming");
-  assert.doesNotMatch(html, /__FLY_SCRIPTS__/, "scripts placeholder resolvido no streaming");
+  assert.match(
+    html,
+    /document\.title="Post hello"/,
+    "title aplicado no client (streaming)",
+  );
+  assert.doesNotMatch(
+    html,
+    /__FLY_HEAD__/,
+    "head placeholder resolvido no streaming",
+  );
+  assert.doesNotMatch(
+    html,
+    /__FLY_SCRIPTS__/,
+    "scripts placeholder resolvido no streaming",
+  );
 });
 
 test("GET /api/users retorna JSON", async () => {

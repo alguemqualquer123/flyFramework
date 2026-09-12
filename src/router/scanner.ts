@@ -33,7 +33,10 @@ export function toRoute(relPath: string): string {
   return p.startsWith("/") ? p : "/" + p;
 }
 
-export function toRegex(route: string): { regex: RegExp; paramNames: string[] } {
+export function toRegex(route: string): {
+  regex: RegExp;
+  paramNames: string[];
+} {
   const paramNames: string[] = [];
   // Captura catch-all (:name*) e params :name na ordem em que aparecem, mantendo a
   // correspondência entre os índices de paramNames e os grupos de captura.
@@ -77,20 +80,25 @@ export function scanApp(appDir: string): ScanResult {
       const base = name.replace(/\.fly$/, "");
 
       const relPath = relative(appDir, full);
-      const isMw = base === "middleware" || relPath.split(/[\\/]/).includes("middleware");
+      const isMw =
+        base === "middleware" || relPath.split(/[\\/]/).includes("middleware");
       if (isMw) {
         middlewares.push(full);
         if (base === "middleware" && !middleware) middleware = full;
         try {
           const content = readFileSync(full, "utf8");
-          const m = /export\s+const\s+matcher\s*=\s*\[([\s\S]*?)\]/.exec(content);
+          const m = /export\s+const\s+matcher\s*=\s*\[([\s\S]*?)\]/.exec(
+            content,
+          );
           if (m && base === "middleware") {
             middlewareMatcher = m[1]
               .split(",")
               .map((s) => s.trim().replace(/["']/g, ""))
               .filter(Boolean);
           }
-        } catch { /* ignora */ }
+        } catch {
+          /* ignora */
+        }
         continue;
       }
 
@@ -107,11 +115,21 @@ export function scanApp(appDir: string): ScanResult {
 
       const rel = relative(appDir, full);
       const relNoExt = rel.replace(/\.fly$/, "");
-      const dirRel = relNoExt.includes("/") ? relNoExt.slice(0, relNoExt.lastIndexOf("/")) : "";
-      const fileName = relNoExt.includes("/") ? relNoExt.slice(relNoExt.lastIndexOf("/") + 1) : relNoExt;
+      const dirRel = relNoExt.includes("/")
+        ? relNoExt.slice(0, relNoExt.lastIndexOf("/"))
+        : "";
+      const fileName = relNoExt.includes("/")
+        ? relNoExt.slice(relNoExt.lastIndexOf("/") + 1)
+        : relNoExt;
       const baseNoExt = fileName;
       let route: string;
-      if (baseNoExt === "index" || baseNoExt === "page" || baseNoExt === "layout" || baseNoExt === "loading" || baseNoExt === "error") {
+      if (
+        baseNoExt === "index" ||
+        baseNoExt === "page" ||
+        baseNoExt === "layout" ||
+        baseNoExt === "loading" ||
+        baseNoExt === "error"
+      ) {
         // Layouts/loadings/errors (assim como index/page) pertencem ao diretório, não ao arquivo.
         route = dirRel ? toRoute(dirRel) : "/";
       } else {
@@ -140,5 +158,15 @@ export function scanApp(appDir: string): ScanResult {
     // app dir inexistente
   }
   middlewares.sort();
-  return { pages, apis, layouts, loadings, errors, actionFiles, middleware, middlewares, middlewareMatcher };
+  return {
+    pages,
+    apis,
+    layouts,
+    loadings,
+    errors,
+    actionFiles,
+    middleware,
+    middlewares,
+    middlewareMatcher,
+  };
 }

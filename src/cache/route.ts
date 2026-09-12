@@ -1,7 +1,12 @@
 // Cache de rota (camada 2): resposta HTTP completa (SSR/ISR).
 import { dataCache } from "./data.ts";
 
-type RouteEntry = { body: string; status: number; headers: Record<string, string>; expires: number };
+type RouteEntry = {
+  body: string;
+  status: number;
+  headers: Record<string, string>;
+  expires: number;
+};
 
 class RouteCache {
   private store = new Map<string, RouteEntry>();
@@ -20,6 +25,10 @@ class RouteCache {
 
   revalidate(key: string): void {
     this.store.delete(key);
+  }
+
+  clear(): void {
+    this.store.clear();
   }
 
   get size(): number {

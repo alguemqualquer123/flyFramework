@@ -48,9 +48,18 @@ test("security: Session rejeita cookie adulterado e segredo errado", () => {
   const cookie = s.toCookie();
   // adulterando o payload (muda o JSON sem re-assinar)
   const [payload, sig] = cookie.split(".");
-  const tampered = Buffer.from("{\"user\":\"evil\"}").toString("base64url") + "." + sig;
-  assert.equal(Session.fromCookie(tampered, secret), null, "payload adulterado é rejeitado");
-  assert.equal(Session.fromCookie(cookie, "outro-segredo"), null, "segredo errado é rejeitado");
+  const tampered =
+    Buffer.from('{"user":"evil"}').toString("base64url") + "." + sig;
+  assert.equal(
+    Session.fromCookie(tampered, secret),
+    null,
+    "payload adulterado é rejeitado",
+  );
+  assert.equal(
+    Session.fromCookie(cookie, "outro-segredo"),
+    null,
+    "segredo errado é rejeitado",
+  );
   // formato inválido
   assert.equal(Session.fromCookie("sem-ponto", secret), null);
 });
@@ -73,27 +82,52 @@ test("security: rateLimit respeita janela e limite", () => {
   const r1 = rateLimit("rl-test-1", { limit: 3, windowMs: 50 });
   assert.equal(r1.allowed, true);
   assert.equal(r1.remaining, 2);
-  assert.equal(rateLimit("rl-test-1", { limit: 3, windowMs: 50 }).allowed, true);
-  assert.equal(rateLimit("rl-test-1", { limit: 3, windowMs: 50 }).allowed, true);
+  assert.equal(
+    rateLimit("rl-test-1", { limit: 3, windowMs: 50 }).allowed,
+    true,
+  );
+  assert.equal(
+    rateLimit("rl-test-1", { limit: 3, windowMs: 50 }).allowed,
+    true,
+  );
   const r4 = rateLimit("rl-test-1", { limit: 3, windowMs: 50 });
   assert.equal(r4.allowed, false, "4a requisição dentro da janela é bloqueada");
   assert.equal(r4.remaining, 0);
 });
 
 test("security: rateLimitClient usa IP (x-forwarded-for)", () => {
-  const res = rateLimitClient(req("/api", { headers: { "x-forwarded-for": "203.0.113.9" } }), { limit: 1000 });
+  const res = rateLimitClient(
+    req("/api", { headers: { "x-forwarded-for": "203.0.113.9" } }),
+    { limit: 1000 },
+  );
   assert.equal(res.key, "rl:203.0.113.9:http://localhost/api");
   assert.equal(res.allowed, true);
 });
 
 test("security: csrfToken/verifyCsrf validam o token literal do cookie", () => {
   const withCookie = req("/", { headers: { cookie: "fly_csrf=tok123" } });
-  assert.equal(csrfToken(withCookie), "tok123", "devolve o token já presente no cookie");
+  assert.equal(
+    csrfToken(withCookie),
+    "tok123",
+    "devolve o token já presente no cookie",
+  );
   // sem cookie, gera um novo valor (aleatório)
   assert.ok(csrfToken(req("/")).length > 0);
-  assert.equal(verifyCsrf(withCookie, "tok123"), true, "token bate com o cookie");
-  assert.equal(verifyCsrf(withCookie, "outro"), false, "token diferente é rejeitado");
-  assert.equal(verifyCsrf(req("/"), "tok123"), false, "sem cookie no request, rejeita");
+  assert.equal(
+    verifyCsrf(withCookie, "tok123"),
+    true,
+    "token bate com o cookie",
+  );
+  assert.equal(
+    verifyCsrf(withCookie, "outro"),
+    false,
+    "token diferente é rejeitado",
+  );
+  assert.equal(
+    verifyCsrf(req("/"), "tok123"),
+    false,
+    "sem cookie no request, rejeita",
+  );
 });
 
 // ---------- Catch-all ----------
@@ -109,7 +143,9 @@ test("catch-all: scanApp + pipeline resolve params.rest multi-segmento", async (
   const page = scan.pages.find((p) => p.route === "/docs/:rest*");
   assert.ok(page, "catch-all detectado como rota");
   assert.deepEqual(page!.paramNames, ["rest"]);
-  const res = await pipeline.handle(req("/docs/a/b/c", { headers: { "x-fly-nostream": "1" } }));
+  const res = await pipeline.handle(
+    req("/docs/a/b/c", { headers: { "x-fly-nostream": "1" } }),
+  );
   assert.equal(res.status, 200);
   const html = await res.text();
   assert.match(html, /CATCH:a\/b\/c/, "params.rest captura multissegmentos");
@@ -123,17 +159,27 @@ test("layouts: scanner mapeia layout de raiz para / e aninhado para o diretório
 });
 
 test("layouts: pipeline envolve a página com cadeia aninhada (raiz + blog)", async () => {
-  const res = await pipeline.handle(req("/blog/xyz", { headers: { "x-fly-nostream": "1" } }));
+  const res = await pipeline.handle(
+    req("/blog/xyz", { headers: { "x-fly-nostream": "1" } }),
+  );
   const html = await res.text();
   // cadeia de dentro para fora: blog -> raiz
-  assert.ok(html.indexOf("BLOG-HDR") < html.indexOf("Blog POST:xyz"), "header do blog antes do conteúdo");
-  assert.ok(html.indexOf("Blog POST:xyz") < html.indexOf("BLOG-FTR"), "conteúdo antes do footer do blog");
+  assert.ok(
+    html.indexOf("BLOG-HDR") < html.indexOf("Blog POST:xyz"),
+    "header do blog antes do conteúdo",
+  );
+  assert.ok(
+    html.indexOf("Blog POST:xyz") < html.indexOf("BLOG-FTR"),
+    "conteúdo antes do footer do blog",
+  );
   assert.match(html, /<html lang="pt">/, "layout raiz envolve o todo");
   assert.match(html, /BLOG-NAV/, "nav do layout aninhado presente");
 });
 
 test("layouts: página fora do diretório não herda o layout aninhado", async () => {
-  const res = await pipeline.handle(req("/", { headers: { "x-fly-nostream": "1" } }));
+  const res = await pipeline.handle(
+    req("/", { headers: { "x-fly-nostream": "1" } }),
+  );
   const html = await res.text();
   assert.doesNotMatch(html, /BLOG-HDR/, "root não tem header do layout /blog");
   assert.match(html, /<\/html>/, "raiz ainda aplicada");
@@ -142,16 +188,34 @@ test("layouts: página fora do diretório não herda o layout aninhado", async (
 // ---------- Slots ----------
 test("slots: slot default recebe slotContent no SSR", async () => {
   const c = compile(`<div><slot/></div>`, { file: "/x/comp.fly" });
-  const out = await c.render({ params: {}, request: req("/"), url: new URL("http://x/"), cache: {}, slotContent: "INNER" });
+  const out = await c.render({
+    params: {},
+    request: req("/"),
+    url: new URL("http://x/"),
+    cache: {},
+    slotContent: "INNER",
+  });
   assert.match(out.html, /<div>INNER<\/div>/);
   assert.match(c.clientCode, /slotContent/, "client também trata o slot");
 });
 
 test("slots: slot nomeado recebe do mapa slots", async () => {
-  const c = compile(`<div><slot name="titulo"/></div>`, { file: "/x/comp2.fly" });
-  const out = await c.render({ params: {}, request: req("/"), url: new URL("http://x/"), cache: {}, slots: { titulo: "T-NAMED" } });
+  const c = compile(`<div><slot name="titulo"/></div>`, {
+    file: "/x/comp2.fly",
+  });
+  const out = await c.render({
+    params: {},
+    request: req("/"),
+    url: new URL("http://x/"),
+    cache: {},
+    slots: { titulo: "T-NAMED" },
+  });
   assert.match(out.html, /<div>T-NAMED<\/div>/);
-  assert.match(c.clientCode, /slots\['titulo'\]|slots\["titulo"\]/, "client lê slot nomeado");
+  assert.match(
+    c.clientCode,
+    /slots\['titulo'\]|slots\["titulo"\]/,
+    "client lê slot nomeado",
+  );
 });
 
 // ---------- Transition ----------
@@ -167,8 +231,17 @@ test("transition: tipo padrão fade quando vazio após ':'", async () => {
 
 test("transition: não vaza para o SSR (atributo não emitido no HTML)", async () => {
   const c = compile(`<div transition:zoom>oi</div>`, { file: "/x/t3.fly" });
-  const out = await c.render({ params: {}, request: req("/"), url: new URL("http://x/"), cache: {} });
-  assert.doesNotMatch(out.html, /transition/, "SSR não emite o atributo transition");
+  const out = await c.render({
+    params: {},
+    request: req("/"),
+    url: new URL("http://x/"),
+    cache: {},
+  });
+  assert.doesNotMatch(
+    out.html,
+    /transition/,
+    "SSR não emite o atributo transition",
+  );
 });
 
 // ---------- Streaming ----------
@@ -176,8 +249,16 @@ test("streaming: GET com loading boundary serve shell + template de troca", asyn
   const res = await pipeline.handle(req("/blog/xyz"));
   assert.equal(res.status, 200);
   const html = await res.text();
-  assert.match(html, /LOADING-BOUNDARY/, "shell de loading presente no primeiro chunk");
-  assert.match(html, /id="__fly_real"/, "template com o conteúdo real presente");
+  assert.match(
+    html,
+    /LOADING-BOUNDARY/,
+    "shell de loading presente no primeiro chunk",
+  );
+  assert.match(
+    html,
+    /id="__fly_real"/,
+    "template com o conteúdo real presente",
+  );
   assert.match(html, /Blog POST:xyz/, "conteúdo real renderizado no template");
   assert.match(html, /document\.title=/, "title aplicado no client");
   assert.doesNotMatch(html, /__FLY_HEAD__/, "head placeholder resolvido");
@@ -185,7 +266,9 @@ test("streaming: GET com loading boundary serve shell + template de troca", asyn
 });
 
 test("streaming: nestream desativa streaming e entrega HTML completo com SEO no head", async () => {
-  const res = await pipeline.handle(req("/blog/xyz", { headers: { "x-fly-nostream": "1" } }));
+  const res = await pipeline.handle(
+    req("/blog/xyz", { headers: { "x-fly-nostream": "1" } }),
+  );
   const html = await res.text();
   assert.doesNotMatch(html, /LOADING-BOUNDARY/, "sem shell de loading");
   assert.doesNotMatch(html, /__fly_real/, "sem template de troca");
@@ -194,7 +277,10 @@ test("streaming: nestream desativa streaming e entrega HTML completo com SEO no 
 
 // ---------- CLI init / create ----------
 function runCli(args: string[], cwd = ROOT) {
-  return spawnSync(process.execPath, ["src/cli/index.ts", ...args], { cwd, encoding: "utf8" });
+  return spawnSync(process.execPath, ["src/cli/index.ts", ...args], {
+    cwd,
+    encoding: "utf8",
+  });
 }
 
 test("CLI: init cria esqueleto de projeto (config, tsconfig, package, app)", () => {
