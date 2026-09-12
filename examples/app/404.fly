@@ -1,0 +1,11 @@
+<script>
+  export function meta() {
+    return { title: "Página não encontrada", description: "404" };
+  }
+</script>
+
+<div class="notfound">
+  <h1>404</h1>
+  <p>A página que você procura não existe.</p>
+  <Link href="/">← voltar ao início</Link>
+</div>

@@ -1,0 +1,26 @@
+<script>
+  export function meta() { return { title: "Entrar — Loja Fly", description: "Acesso à conta." }; }
+
+  let status = $state("");
+  onMount(() => {
+    const u = JSON.parse(localStorage.getItem("fly-user") || "null");
+    if (u) status = "Você está logado como " + u.email;
+  });
+</script>
+
+<h1>Entrar</h1>
+<p>Demonstração de autenticação via <strong>Server Action</strong> + persistência da sessão no <code>localStorage</code>.</p>
+
+<div class="notice" if={status}>{status}</div>
+
+<Form action={login} data-fly-error="err">
+  <div on:fly:error={(e) => (status = "Erro: " + e.detail)}>
+    <label>E-mail</label>
+    <input name="email" type="email" placeholder="voce@exemplo.com" required />
+    <label>Senha</label>
+    <input name="senha" type="password" placeholder="mín. 4 caracteres" required />
+    <div class="row" style="margin-top:1rem">
+      <button class="btn" type="submit">Entrar</button>
+    </div>
+  </div>
+</Form>

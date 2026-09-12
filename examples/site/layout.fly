@@ -1,0 +1,55 @@
+<script>
+  let cartCount = $state(0);
+
+  onMount(() => {
+    try { cartCount = JSON.parse(localStorage.getItem("fly-cart") || "[]").length; } catch {}
+    window.addEventListener("fly:cart", (e) => { cartCount = e.detail; });
+  });
+</script>
+
+<style>
+  * { box-sizing: border-box; margin: 0; }
+  body { font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif; background: #f6f7f9; color: #17181c; line-height: 1.6; }
+  header.top { background: #17181c; color: #fff; }
+  nav { max-width: 1100px; margin: 0 auto; padding: 1rem 1.5rem; display: flex; gap: 1.5rem; align-items: center; flex-wrap: wrap; }
+  nav a { color: #fff; text-decoration: none; font-weight: 600; }
+  nav a:hover { text-decoration: underline; }
+  .brand { font-size: 1.2rem; margin-right: auto; }
+  .badge { background: #e11d48; color: #fff; border-radius: 999px; padding: .1rem .55rem; font-size: .8rem; margin-left: .3rem; }
+  main { max-width: 1100px; margin: 0 auto; padding: 2rem 1.5rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 1.2rem; }
+  .card { background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; padding: 1.2rem; transition: box-shadow .2s; }
+  .card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.08); }
+  .card h3 { font-size: 1.05rem; }
+  .price { font-size: 1.2rem; font-weight: 700; color: #0f766e; }
+  .btn { display: inline-block; background: #0f766e; color: #fff; border: 0; border-radius: 8px; padding: .55rem 1rem; cursor: pointer; font-weight: 600; text-decoration: none; }
+  .btn.ghost { background: transparent; color: #0f766e; border: 1px solid #0f766e; }
+  footer { text-align: center; color: #6b7280; padding: 2rem; font-size: .9rem; }
+  .row { display: flex; gap: .5rem; align-items: center; }
+  input, textarea, select { padding: .55rem; border: 1px solid #d1d5db; border-radius: 8px; font: inherit; width: 100%; }
+  label { font-weight: 600; display: block; margin: .8rem 0 .3rem; }
+  .notice { background: #ecfdf5; border: 1px solid #a7f3d0; color: #065f46; padding: 1rem; border-radius: 10px; margin-bottom: 1.5rem; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: .6rem; border-bottom: 1px solid #e5e7eb; }
+</style>
+
+<html lang="pt-BR">
+<head>
+  __FLY_HEAD__
+</head>
+<body>
+  <header class="top">
+    <nav>
+      <a class="brand" href="/">🪰 Loja Fly</a>
+      <a href="/store">Loja</a>
+      <a href="/blog">Blog</a>
+      <a href="/about">Sobre</a>
+      <a href="/contact">Contato</a>
+      <a href="/cart">Carrinho<span class="badge" if={cartCount > 0}>{cartCount}</span></a>
+    </nav>
+  </header>
+  <main id="__fly"><slot/></main>
+  <footer>© 2026 Loja Fly — site de demonstração com a framework Fly (SSR + SSG + ISR + Server Actions + streaming).</footer>
+  __FLY_SCRIPTS__
+</body>
+</html>

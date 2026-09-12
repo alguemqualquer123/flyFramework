@@ -1,0 +1,131 @@
+{
+  "name": "fly-framework",
+  "displayName": "FlyFramework Support",
+  "description": "Complete support for FlyFramework: syntax highlighting, theme, file icons, IntelliSense, snippets, diagnostics, and more.",
+  "version": "2.0.0",
+  "publisher": "flyframework",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Themes",
+    "Linters",
+    "Formatters"
+  ],
+  "keywords": [
+    "fly",
+    "flyframework",
+    "ssr",
+    "ssg",
+    "isr",
+    "reactive",
+    ".fly",
+    "fullstack",
+    "compiler"
+  ],
+  "activationEvents": [
+    "onLanguage:fly",
+    "workspaceContains:**/*.fly"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "fly",
+        "aliases": [
+          "Fly",
+          "fly",
+          "FlyFramework"
+        ],
+        "extensions": [
+          ".fly"
+        ],
+        "configuration": "./src/language/fly.language.json"
+      },
+      {
+        "id": "flyconfig",
+        "aliases": [
+          "Fly Config"
+        ],
+        "extensions": [
+          "fly.config.ts",
+          "fly.config.js"
+        ],
+        "configuration": "./src/language/flyconfig.language.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "fly",
+        "scopeName": "source.fly",
+        "path": "./src/language/fly.tmLanguage.json",
+        "embeddedLanguages": {
+          "source.js": "javascript",
+          "source.ts": "typescript",
+          "source.css": "css",
+          "text.html.basic": "html"
+        }
+      },
+      {
+        "language": "flyconfig",
+        "scopeName": "source.ts",
+        "path": "./src/language/flyconfig.tmLanguage.json",
+        "embeddedLanguages": {
+          "source.ts": "typescript"
+        }
+      }
+    ],
+    "themes": [
+      {
+        "label": "Fly Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/fly-theme.json"
+      }
+    ],
+    "iconThemes": [
+      {
+        "id": "fly-icons",
+        "label": "Fly Icons",
+        "path": "./icon-themes/fly-icon-theme.json"
+      }
+    ],
+    "snippets": [
+      {
+        "language": "fly",
+        "path": "./snippets/fly.code-snippets"
+      },
+      {
+        "language": "typescript",
+        "path": "./snippets/flyconfig.code-snippets"
+      },
+      {
+        "language": "flyconfig",
+        "path": "./snippets/flyconfig.code-snippets"
+      }
+    ],
+    "configurationDefaults": {
+      "editor.tabSize": 2,
+      "editor.insertSpaces": true,
+      "editor.wordWrap": "on",
+      "editor.bracketPairColorization.enabled": true,
+      "editor.guides.bracketPairs": "active"
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts",
+    "clean": "rm -rf out",
+    "package": "vsce package"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.3.3",
+    "@vscode/vsce": "^2.22.0"
+  }
+}

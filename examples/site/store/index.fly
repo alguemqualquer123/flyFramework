@@ -1,0 +1,57 @@
+<script>
+  export const render = "isr";
+  export const revalidate = 30;
+
+  function addToCart(id) {
+    if (typeof localStorage === "undefined") return;
+    const cart = JSON.parse(localStorage.getItem("fly-cart") || "[]");
+    cart.push(id);
+    localStorage.setItem("fly-cart", JSON.stringify(cart));
+    window.dispatchEvent(new CustomEvent("fly:cart", { detail: cart.length }));
+  }
+
+  export async function loader({ cache }) {
+    const products = await cache.fetch("catalog", async () => {
+      // Base de dados simulada + atraso de rede (demonstra streaming/loading).
+      await new Promise((r) => setTimeout(r, 60));
+      return [
+        { id: 1, name: "Camiseta Fly", price: 79.9, img: "👕", cat: "Vestuário", desc: "Algodão penteado premium, estampa da framework." },
+        { id: 2, name: "Caneca Dev", price: 39.9, img: "☕", cat: "Acessório", desc: "Capacidade 350ml, ótima para café + código." },
+        { id: 3, name: "Adesivos Pack", price: 19.9, img: "🖨️", cat: "Acessório", desc: "10 adesivos vinil 5x5cm para seu notebook." },
+        { id: 4, name: "Moletom Fly", price: 159.9, img: "🧥", cat: "Vestuário", desc: "Fleece antialérgico, toque macio e quentinho." },
+        { id: 5, name: "Poster Arquitetura", price: 49.9, img: "🖼️", cat: "Decoração", desc: "Impressão em papel sulfite 180g, 40x60cm." },
+        { id: 6, name: "Teclado Compacto", price: 329.9, img: "⌨️", cat: "Hardware", desc: "Mecânico hot-swap, layout ABNT2." },
+        { id: 7, name: "Mouse Ergonômico", price: 119.9, img: "🖱️", cat: "Hardware", desc: "Sem fio, bateria de 6 meses." },
+        { id: 8, name: "Capa Notebook", price: 59.9, img: "💼", cat: "Acessório", desc: "Neoprene 14\", proteção contra quedas." },
+      ];
+    }, { ttl: 30, tags: ["products"] });
+
+    const featured = products.filter((p) => p.id <= 4);
+    return { products: featured, total: products.length };
+  }
+
+  export function meta({ data }) {
+    return { title: "Loja — " + data.total + " produtos", description: "Catálogo de produtos da Loja Fly." };
+  }
+</script>
+
+<div class="notice">
+  <strong>Página ISR</strong> — dados de um loader com cache (TTL 30s). O atraso de 60ms demonstra o <em>loading boundary</em> do streaming. Depois de 30s a rota revalida em background.
+</div>
+
+<h1>Loja</h1>
+<p>Nossos produtos (4 em destaque de {data.total}).</p>
+
+<div class="grid">
+  <div class="card" for={p of data.products}>
+    <h3>{p.img} {p.name}</h3>
+    <p class="price">R$ {p.price.toFixed(2)}</p>
+    <p>{p.desc}</p>
+    <div class="row" style="margin-top:.8rem">
+      <Link href={"/store/" + p.id} class="btn ghost">Ver produto</Link>
+      <button class="btn" on:click={() => addToCart(p.id)}>Adicionar</button>
+    </div>
+  </div>
+</div>
+
+<Link href="/api/products">Ver catálogo como JSON (API)</Link>

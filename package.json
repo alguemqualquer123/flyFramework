@@ -1,0 +1,14 @@
+{
+  "name": "fly-framework",
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Fly — framework full-stack compilado (SSR/SSG/ISR + reatividade estilo Svelte)",
+  "scripts": {
+    "dev": "node src/cli/index.ts dev",
+    "build": "node src/cli/index.ts build",
+    "start": "node src/cli/index.ts start",
+    "test": "node --test",
+    "bench": "node bench/index.ts"
+  },
+  "license": "MIT"
+}

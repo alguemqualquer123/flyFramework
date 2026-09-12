@@ -1,0 +1,10 @@
+<script>
+  export async function middleware({ request, next }) {
+    // Exemplo: bloquear caminho /secret
+    const url = new URL(request.url);
+    if (url.pathname === "/secret") {
+      return new Response("Acesso negado", { status: 403 });
+    }
+    return next();
+  }
+</script>

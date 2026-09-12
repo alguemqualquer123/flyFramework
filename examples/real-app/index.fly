@@ -1,0 +1,18 @@
+<script>
+  export async function loader({ cache }) {
+    return cache.fetch("products", () =>
+      ({ products: Array.from({ length: 50 }, (_, i) => ({ id: i, name: "Produto " + i, price: (i + 1) * 10 })) })
+    , { ttl: 10, tags: ["products"] });
+  }
+  export function meta() {
+    return { title: "Loja Fly — E-commerce", description: "Demo de loja com Fly", openGraph: { title: "Loja Fly" } };
+  }
+</script>
+
+<h1>Catálogo</h1>
+<ul class="grid">
+  <li for={p of data.products}>
+    <a href={"/products/" + p.id}>{p.name}</a>
+    <span class:destaque={p.price > 300}>R$ {p.price}</span>
+  </li>
+</ul>

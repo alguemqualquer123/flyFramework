@@ -1,0 +1,8 @@
+<html lang="pt-BR">
+<head>__FLY_HEAD__</head>
+<body>
+  <header><a href="/">Loja Fly</a></header>
+  <main id="__fly"><slot/></main>
+  __FLY_SCRIPTS__
+</body>
+</html>

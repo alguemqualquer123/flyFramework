@@ -1,0 +1,27 @@
+<script>
+  const CATALOG = [
+    { id: 1, name: "Camiseta Fly", price: 79.9, img: "👕", cat: "Vestuário" },
+    { id: 2, name: "Caneca Dev", price: 39.9, img: "☕", cat: "Acessório" },
+    { id: 3, name: "Adesivos Pack", price: 19.9, img: "🖨️", cat: "Acessório" },
+    { id: 4, name: "Moletom Fly", price: 159.9, img: "🧥", cat: "Vestuário" },
+    { id: 5, name: "Poster Arquitetura", price: 49.9, img: "🖼️", cat: "Decoração" },
+    { id: 6, name: "Teclado Compacto", price: 329.9, img: "⌨️", cat: "Hardware" },
+    { id: 7, name: "Mouse Ergonômico", price: 119.9, img: "🖱️", cat: "Hardware" },
+    { id: 8, name: "Capa Notebook", price: 59.9, img: "💼", cat: "Acessório" },
+  ];
+
+  export async function GET({ params, request }) {
+    const url = new URL(request.url);
+    if (url.searchParams.get("id")) {
+      const p = CATALOG.find((x) => x.id === Number(url.searchParams.get("id")));
+      if (!p) return Response.json({ error: "não encontrado" }, { status: 404 });
+      return p;
+    }
+    return CATALOG;
+  }
+
+  export async function POST({ request }) {
+    const body = await request.json();
+    return Response.json({ ok: true, body }, { status: 201 });
+  }
+</script>

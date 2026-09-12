@@ -1,0 +1,16 @@
+<script>
+  export async function loader({ params, cache }) {
+    return cache.fetch("prod:" + params.id, () => ({
+      product: { id: params.id, name: "Produto " + params.id, price: 99 }
+    }), { ttl: 30, tags: ["products"] });
+  }
+  export function meta({ data }) {
+    return { title: data.product.name, description: "Detalhe do produto" };
+  }
+</script>
+
+<article>
+  <h1>{data.product.name}</h1>
+  <p>Preço: R$ {data.product.price}</p>
+  <a href="/">← voltar</a>
+</article>

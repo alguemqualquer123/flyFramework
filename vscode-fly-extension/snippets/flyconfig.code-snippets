@@ -1,0 +1,32 @@
+{
+  "Fly Config (Basic)": {
+    "prefix": "fly:config",
+    "body": [
+      "import { defineConfig } from \"fly-framework/src/core/config\";",
+      "",
+      "export default defineConfig({",
+      "  appDir: \"${1:./app}\",",
+      "  siteUrl: \"${2:https://mysite.com}\",",
+      "  adapter: \"${3|node,edge,serverless}\",",
+      "  build: {",
+      "    minify: ${4:true},",
+      "    sourcemap: ${5:false}",
+      "  }",
+      "});"
+    ],
+    "description": "Create a fly.config.ts configuration file"
+  },
+  "Fly Config (Minimal)": {
+    "prefix": "fly:config-minimal",
+    "body": [
+      "import { defineConfig } from \"fly-framework/src/core/config\";",
+      "",
+      "export default defineConfig({",
+      "  appDir: \"${1:./app}\",",
+      "  siteUrl: \"${2:https://mysite.com}\",",
+      "  adapter: \"${3|node,edge,serverless}\"",
+      "});"
+    ],
+    "description": "Create a minimal fly.config.ts"
+  }
+}

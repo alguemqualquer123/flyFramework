@@ -1,0 +1,13 @@
+<script>
+  const users = [{ id: 1, name: "Ana" }, { id: 2, name: "Bob" }];
+
+  export async function GET() {
+    return Response.json(users);
+  }
+
+  export async function POST({ request }) {
+    const body = await request.json();
+    users.push({ id: users.length + 1, name: body.name });
+    return Response.json(users, { status: 201 });
+  }
+</script>

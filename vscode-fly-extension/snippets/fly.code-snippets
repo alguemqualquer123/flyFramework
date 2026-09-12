@@ -1,0 +1,464 @@
+{
+  "Fly Page (Basic)": {
+    "prefix": "fly:page",
+    "body": [
+      "<script>",
+      "  export async function loader({ request, params }) {",
+      "    return { data: {} };",
+      "  }",
+      "",
+      "  export function meta({ data }) {",
+      "    return { title: \"$1\" };",
+      "  }",
+      "</script>",
+      "",
+      "<div>",
+      "  <h1>{$2}</h1>",
+      "</div>",
+      "",
+      "<style>",
+      "  $0",
+      "</style>"
+    ],
+    "description": "Create a basic Fly page with loader and meta"
+  },
+  "Fly Page (Dynamic Route)": {
+    "prefix": "fly:page-dynamic",
+    "body": [
+      "<script>",
+      "  export async function loader({ request, params }) {",
+      "    const { ${1:id} } = params;",
+      "    return { data: { ${1:id} } };",
+      "  }",
+      "",
+      "  export async function generateStaticParams() {",
+      "    return [\"${2:1}\", \"${3:2}\"];",
+      "  }",
+      "",
+      "  export function meta({ data }) {",
+      "    return { title: `Item ${data.${1:id}}` };",
+      "  }",
+      "</script>",
+      "",
+      "<div>",
+      "  <h1>Item {data.${1:id}}</h1>",
+      "</div>",
+      "",
+      "<style>",
+      "  $0",
+      "</style>"
+    ],
+    "description": "Create a dynamic Fly page with generateStaticParams"
+  },
+  "Fly Page (ISR)": {
+    "prefix": "fly:page-isr",
+    "body": [
+      "<script>",
+      "  export const revalidate = ${1:60};",
+      "",
+      "  export async function loader({ request }) {",
+      "    return { data: {} };",
+      "  }",
+      "",
+      "  export function meta({ data }) {",
+      "    return { title: \"$2\" };",
+      "  }",
+      "</script>",
+      "",
+      "<div>",
+      "  <h1>{$3}</h1>",
+      "</div>",
+      "",
+      "<style>",
+      "  $0",
+      "</style>"
+    ],
+    "description": "Create a Fly page with ISR revalidation"
+  },
+  "Fly Page (Prerender / SSG)": {
+    "prefix": "fly:page-ssg",
+    "body": [
+      "<script>",
+      "  export const prerender = true;",
+      "",
+      "  export async function loader({ params }) {",
+      "    return { data: {} };",
+      "  }",
+      "",
+      "  export async function generateStaticParams() {",
+      "    return [\"${1:param1}\"];",
+      "  }",
+      "",
+      "  export function meta({ data }) {",
+      "    return { title: \"$2\" };",
+      "  }",
+      "</script>",
+      "",
+      "<div>",
+      "  <h1>{$3}</h1>",
+      "</div>",
+      "",
+      "<style>",
+      "  $0",
+      "</style>"
+    ],
+    "description": "Create a prerendered (SSG) Fly page"
+  },
+  "Fly Page (Stream)": {
+    "prefix": "fly:page-stream",
+    "body": [
+      "<script>",
+      "  export const render = \"stream\";",
+      "",
+      "  export async function loader({ request, params }) {",
+      "    const ${1:data} = await ${2:fetchData()};",
+      "    return { data: $1 };",
+      "  }",
+      "",
+      "  export function meta({ data }) {",
+      "    return { title: \"$3\" };",
+      "  }",
+      "</script>",
+      "",
+      "<div>",
+      "  <h1>{$4}</h1>",
+      "</div>",
+      "",
+      "<style>",
+      "  $0",
+      "</style>"
+    ],
+    "description": "Create a streaming Fly page"
+  },
+  "Fly API Route": {
+    "prefix": "fly:api",
+    "body": [
+      "<script>",
+      "  export async function GET({ request, params }) {",
+      "    return Response.json({ ok: true });",
+      "  }",
+      "",
+      "  export async function POST({ request, params }) {",
+      "    const body = await request.json();",
+      "    return Response.json({ created: true, ...body });",
+      "  }",
+      "</script>"
+    ],
+    "description": "Create a Fly API route with GET and POST handlers"
+  },
+  "Fly API Route (CRUD)": {
+    "prefix": "fly:api-crud",
+    "body": [
+      "<script>",
+      "  export async function GET({ request, params }) {",
+      "    const ${1:id} = params.id;",
+      "    return Response.json({ data: {} });",
+      "  }",
+      "",
+      "  export async function POST({ request, params }) {",
+      "    const body = await request.json();",
+      "    return Response.json({ created: true, ...body }, { status: 201 });",
+      "  }",
+      "",
+      "  export async function PUT({ request, params }) {",
+      "    const body = await request.json();",
+      "    return Response.json({ updated: true, ...body });",
+      "  }",
+      "",
+      "  export async function DELETE({ request, params }) {",
+      "    return Response.json({ deleted: true });",
+      "  }",
+      "</script>"
+    ],
+    "description": "Create a Fly API route with full CRUD handlers"
+  },
+  "Fly Server Action": {
+    "prefix": "fly:action",
+    "body": [
+      "\"use server\";",
+      "",
+      "export async function ${1:actionName}(${2:formData}) {",
+      "  ${3:// server-side logic}",
+      "  return { result: true };",
+      "}"
+    ],
+    "description": "Create a Fly server action"
+  },
+  "Fly Server Action (with validation)": {
+    "prefix": "fly:action-validate",
+    "body": [
+      "\"use server\";",
+      "",
+      "export async function ${1:actionName}(${2:args}) {",
+      "  const errors: Record<string, string> = {};",
+      "",
+      "  ${3:// validation}",
+      "",
+      "  if (Object.keys(errors).length > 0) {",
+      "    return { errors };",
+      "  }",
+      "",
+      "  ${4:// execute action}",
+      "  return { success: true };",
+      "}"
+    ],
+    "description": "Create a Fly server action with validation"
+  },
+  "Fly Middleware": {
+    "prefix": "fly:middleware",
+    "body": [
+      "<script>",
+      "  export default async function middleware({ request, next }) {",
+      "    const url = new URL(request.url);",
+      "",
+      "    ${1:// check auth, redirect, etc.}",
+      "",
+      "    return next();",
+      "  }",
+      "</script>"
+    ],
+    "description": "Create a Fly middleware"
+  },
+  "Fly Middleware (Auth)": {
+    "prefix": "fly:middleware-auth",
+    "body": [
+      "<script>",
+      "  export default async function middleware({ request, next }) {",
+      "    const url = new URL(request.url);",
+      "    const session = request.headers.get(\"cookie\");",
+      "",
+      "    if (url.pathname.startsWith(\"/dashboard\") && !session) {",
+      "      return Response.redirect(\"/login\", 302);",
+      "    }",
+      "",
+      "    return next();",
+      "  }",
+      "</script>"
+    ],
+    "description": "Create a Fly middleware with auth check"
+  },
+  "Fly Layout": {
+    "prefix": "fly:layout",
+    "body": [
+      "<script>",
+      "  export async function loader() {",
+      "    return { data: {} };",
+      "  }",
+      "</script>",
+      "",
+      "<div class=\"layout\">",
+      "  <header>",
+      "    <nav>$1</nav>",
+      "  </header>",
+      "  <main>",
+      "    <slot />",
+      "  </main>",
+      "  <footer>",
+      "    <p>$2</p>",
+      "  </footer>",
+      "</div>",
+      "",
+      "<style>",
+      "  .layout {",
+      "    display: flex;",
+      "    flex-direction: column;",
+      "    min-height: 100vh;",
+      "  }",
+      "  main { flex: 1; }",
+      "  $0",
+      "</style>"
+    ],
+    "description": "Create a Fly layout with header, main and footer"
+  },
+  "Fly Loading": {
+    "prefix": "fly:loading",
+    "body": [
+      "<div class=\"loading\">",
+      "  <div class=\"spinner\"></div>",
+      "  <p>$1</p>",
+      "</div>",
+      "",
+      "<style>",
+      "  .loading {",
+      "    display: flex;",
+      "    flex-direction: column;",
+      "    align-items: center;",
+      "    justify-content: center;",
+      "    min-height: 200px;",
+      "  }",
+      "  .spinner {",
+      "    width: 32px;",
+      "    height: 32px;",
+      "    border: 3px solid #30363D;",
+      "    border-top-color: #FFD700;",
+      "    border-radius: 50%;",
+      "    animation: spin 0.8s linear infinite;",
+      "  }",
+      "  @keyframes spin {",
+      "    to { transform: rotate(360deg); }",
+      "  }",
+      "  $0",
+      "</style>"
+    ],
+    "description": "Create a Fly loading state component"
+  },
+  "Fly Error": {
+    "prefix": "fly:error",
+    "body": [
+      "<script>",
+      "  export async function loader({ data }) {",
+      "    return { data: { message: data?.message ?? \"Something went wrong\" } };",
+      "  }",
+      "</script>",
+      "",
+      "<div class=\"error-page\">",
+      "  <h1>Oops!</h1>",
+      "  <p>{data.message}</p>",
+      "  <a href=\"/\">Go home</a>",
+      "</div>",
+      "",
+      "<style>",
+      "  .error-page {",
+      "    display: flex;",
+      "    flex-direction: column;",
+      "    align-items: center;",
+      "    justify-content: center;",
+      "    min-height: 60vh;",
+      "    text-align: center;",
+      "  }",
+      "  $0",
+      "</style>"
+    ],
+    "description": "Create a Fly error page"
+  },
+  "Fly State": {
+    "prefix": "fly:state",
+    "body": [
+      "let ${1:variable} = $state(${2:initialValue});"
+    ],
+    "description": "Declare a reactive state variable"
+  },
+  "Fly State (Object)": {
+    "prefix": "fly:state-object",
+    "body": [
+      "let ${1:state} = $state({",
+      "  ${2:key}: ${3:value},",
+      "});"
+    ],
+    "description": "Declare a reactive state object"
+  },
+  "Fly State (Array)": {
+    "prefix": "fly:state-array",
+    "body": [
+      "let ${1:items} = $state([${2:item1}, ${3:item2}]);"
+    ],
+    "description": "Declare a reactive state array"
+  },
+  "Fly For Loop": {
+    "prefix": "fly:for",
+    "body": [
+      "<div for=\"{${1:item} of ${2:items}}\">",
+      "  {$1.${3:name}}",
+      "</div>"
+    ],
+    "description": "Create a for loop in template"
+  },
+  "Fly For With Index": {
+    "prefix": "fly:for-index",
+    "body": [
+      "<div for=\"{(${1:item}, ${2:index}) of ${3:items}}\">",
+      "  {$2}: {$1.${4:name}}",
+      "</div>"
+    ],
+    "description": "Create a for loop with index"
+  },
+  "Fly If": {
+    "prefix": "fly:if",
+    "body": [
+      "<div if=\"{${1:condition}}\">",
+      "  ${2:content}",
+      "</div>"
+    ],
+    "description": "Create a conditional rendering block"
+  },
+  "Fly If/Else": {
+    "prefix": "fly:if-else",
+    "body": [
+      "<div if=\"{${1:condition}}\">",
+      "  ${2:true content}",
+      "</div>",
+      "<div else>",
+      "  ${3:false content}",
+      "</div>"
+    ],
+    "description": "Create an if/else conditional block"
+  },
+  "Fly Slot": {
+    "prefix": "fly:slot",
+    "body": [
+      "<slot />"
+    ],
+    "description": "Insert a slot"
+  },
+  "Fly Slot (Named)": {
+    "prefix": "fly:slot-named",
+    "body": [
+      "<slot name=\"${1:name}\" />"
+    ],
+    "description": "Insert a named slot"
+  },
+  "Fly Config (Basic)": {
+    "prefix": "fly:config",
+    "body": [
+      "import { defineConfig } from \"fly-framework/src/core/config\";",
+      "",
+      "export default defineConfig({",
+      "  appDir: \"${1:./app}\",",
+      "  siteUrl: \"${2:https://mysite.com}\",",
+      "  adapter: \"${3|node,edge,serverless}\",",
+      "  build: {",
+      "    minify: ${4:true},",
+      "    sourcemap: ${5:false}",
+      "  }",
+      "});"
+    ],
+    "description": "Create a fly.config.ts configuration file"
+  },
+  "Fly Cache Fetch": {
+    "prefix": "fly:cache",
+    "body": [
+      "const ${1:data} = await cache.fetch(\"${2:key}\", async () => {",
+      "  ${3:// producer function}",
+      "}, { ttl: ${4:60}, tags: [\"${5:tag}\"] });"
+    ],
+    "description": "Fetch data with cache"
+  },
+  "Fly Redirect": {
+    "prefix": "fly:redirect",
+    "body": [
+      "flyUtils.redirect(\"${1:/new-path}\");"
+    ],
+    "description": "Redirect to a path"
+  },
+  "Fly NotFound": {
+    "prefix": "fly:notfound",
+    "body": [
+      "flyUtils.notFound();"
+    ],
+    "description": "Return a 404 response"
+  },
+  "Fly RevalidateTag": {
+    "prefix": "fly:revalidate-tag",
+    "body": [
+      "flyUtils.revalidateTag(\"${1:tag}\");"
+    ],
+    "description": "Revalidate cache by tag"
+  },
+  "Fly RevalidatePath": {
+    "prefix": "fly:revalidate-path",
+    "body": [
+      "flyUtils.revalidatePath(\"${1:/path}\");"
+    ],
+    "description": "Revalidate cache by path"
+  }
+}

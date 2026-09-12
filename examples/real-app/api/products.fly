@@ -1,0 +1,6 @@
+<script>
+  const products = Array.from({ length: 50 }, (_, i) => ({ id: i, name: "Produto " + i, price: (i + 1) * 10 }));
+  export async function GET() {
+    return Response.json(products);
+  }
+</script>

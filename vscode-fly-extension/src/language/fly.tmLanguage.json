@@ -1,0 +1,326 @@
+{
+  "name": "Fly",
+  "scopeName": "source.fly",
+  "fileTypes": [".fly"],
+  "firstLine": "^.*$",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#script-block" },
+    { "include": "#style-block" },
+    { "include": "#template" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.block.fly",
+          "begin": "<!--",
+          "end": "-->",
+          "beginCaptures": { "0": { "name": "punctuation.definition.comment.begin.fly" } },
+          "endCaptures": { "0": { "name": "punctuation.definition.comment.end.fly" } }
+        }
+      ]
+    },
+
+    "script-block": {
+      "patterns": [
+        {
+          "name": "meta.embedded.block.fly-script",
+          "begin": "<script(?:\\s[^>]*)?>",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.tag.begin.fly" }
+          },
+          "end": "</script>",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.tag.end.fly" }
+          },
+          "patterns": [
+            { "include": "#fly-directives" },
+            { "include": "#fly-config-exports" },
+            { "include": "#fly-state" },
+            { "include": "#fly-api-handlers" },
+            { "include": "#fly-loader-meta" },
+            { "include": "#fly-generate-static-params" },
+            { "include": "#fly-middleware-export" },
+            { "include": "#fly-action-export" },
+            { "include": "#javascript" }
+          ]
+        }
+      ]
+    },
+
+    "style-block": {
+      "patterns": [
+        {
+          "name": "meta.embedded.block.fly-style",
+          "begin": "<style(?:\\s[^>]*)?>",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.tag.begin.fly" }
+          },
+          "end": "</style>",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.tag.end.fly" }
+          },
+          "patterns": [
+            { "include": "#css" }
+          ]
+        }
+      ]
+    },
+
+    "fly-directives": {
+      "patterns": [
+        {
+          "name": "keyword.directive.use-server.fly",
+          "pattern": "\\b[\"']use\\s+server[\"']\\s*;?"
+        },
+        {
+          "name": "keyword.directive.use-client.fly",
+          "pattern": "\\b[\"']use\\s+client[\"']\\s*;?"
+        }
+      ]
+    },
+
+    "fly-config-exports": {
+      "patterns": [
+        {
+          "name": "meta.export.render.fly",
+          "match": "\\bexport\\s+const\\s+render\\s*=\\s*[\"'](client|stream|pipe)[\"']\\s*;?"
+        },
+        {
+          "name": "meta.export.revalidate.fly",
+          "match": "\\bexport\\s+const\\s+revalidate\\s*=\\s*\\d+\\s*;?"
+        },
+        {
+          "name": "meta.export.prerender.fly",
+          "match": "\\bexport\\s+const\\s+prerender\\s*=\\s*true\\s*;?"
+        }
+      ]
+    },
+
+    "fly-state": {
+      "patterns": [
+        {
+          "name": "meta.state-declaration.fly",
+          "match": "\\b(let|const|var)\\s+([A-Za-z_$][\\w$]*)\\s*=\\s*\\$state\\s*\\(",
+          "captures": {
+            "1": { "name": "keyword.other.state.fly" },
+            "2": { "name": "variable.other.state.fly" }
+          }
+        }
+      ]
+    },
+
+    "fly-api-handlers": {
+      "patterns": [
+        {
+          "name": "meta.export.api-handler.fly",
+          "match": "\\bexport\\s+(async\\s+)?function\\s+(GET|POST|PUT|PATCH|DELETE)\\s*\\(",
+          "captures": {
+            "1": { "name": "storage.modifier.async.fly" },
+            "2": { "name": "support.function.api-handler.fly" }
+          }
+        }
+      ]
+    },
+
+    "fly-loader-meta": {
+      "patterns": [
+        {
+          "name": "meta.export.loader.fly",
+          "match": "\\bexport\\s+(async\\s+)?function\\s+(loader)\\s*\\(",
+          "captures": {
+            "1": { "name": "storage.modifier.async.fly" },
+            "2": { "name": "support.function.loader.fly" }
+          }
+        },
+        {
+          "name": "meta.export.meta.fly",
+          "match": "\\bexport\\s+function\\s+(meta)\\s*\\(",
+          "captures": {
+            "1": { "name": "support.function.meta.fly" }
+          }
+        }
+      ]
+    },
+
+    "fly-generate-static-params": {
+      "patterns": [
+        {
+          "name": "meta.export.generateStaticParams.fly",
+          "match": "\\bexport\\s+(async\\s+)?function\\s+(generateStaticParams)\\s*\\(",
+          "captures": {
+            "1": { "name": "storage.modifier.async.fly" },
+            "2": { "name": "support.function.generateStaticParams.fly" }
+          }
+        }
+      ]
+    },
+
+    "fly-middleware-export": {
+      "patterns": [
+        {
+          "name": "meta.export.middleware.fly",
+          "match": "\\bexport\\s+(default\\s+)?(async\\s+)?function\\s+(middleware)\\s*\\(",
+          "captures": {
+            "2": { "name": "storage.modifier.async.fly" },
+            "3": { "name": "support.function.middleware.fly" }
+          }
+        }
+      ]
+    },
+
+    "fly-action-export": {
+      "patterns": [
+        {
+          "name": "meta.export.action.fly",
+          "match": "\\bexport\\s+(async\\s+)?function\\s+([A-Za-z_$][\\w$]*)\\s*\\((?!.*(?:request|params|url|cache))",
+          "captures": {
+            "1": { "name": "storage.modifier.async.fly" },
+            "2": { "name": "support.function.action.fly" }
+          }
+        }
+      ]
+    },
+
+    "template": {
+      "patterns": [
+        { "include": "#html-tags" },
+        { "include": "#fly-template-directives" },
+        { "include": "#fly-slot" },
+        { "include": "#fly-interpolation" }
+      ]
+    },
+
+    "html-tags": {
+      "patterns": [
+        {
+          "name": "meta.tag.fly",
+          "begin": "</?([a-zA-Z][a-zA-Z0-9:-]*)",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.tag.begin.fly" },
+            "1": { "name": "entity.name.tag.fly" }
+          },
+          "end": "(/?>)",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.tag.end.fly" }
+          },
+          "patterns": [
+            {
+              "name": "entity.other.attribute-name.fly",
+              "match": "\\b([a-zA-Z_][\\w:-]*)\\b(?=\\s*=)"
+            },
+            {
+              "name": "string.quoted.double.fly",
+              "begin": "\"",
+              "end": "\""
+            },
+            {
+              "name": "string.quoted.single.fly",
+              "begin": "'",
+              "end": "'"
+            },
+            {
+              "name": "expression.embedded.fly",
+              "begin": "\\{",
+              "end": "\\}",
+              "patterns": [
+                { "include": "source.js" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    "fly-template-directives": {
+      "patterns": [
+        {
+          "name": "entity.other.attribute-name.fly-if",
+          "match": "\\bif\\b(?=\\s*=)"
+        },
+        {
+          "name": "entity.other.attribute-name.fly-for",
+          "match": "\\bfor\\b(?=\\s*=)"
+        },
+        {
+          "name": "entity.other.attribute-name.fly-else",
+          "match": "\\belse\\b(?=\\s*=|\\s*>)"
+        },
+        {
+          "name": "string.quoted.directive.fly",
+          "begin": "(?:if|for|else)\\s*=\\s*\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "expression.embedded.directive.fly",
+              "begin": "\\{",
+              "end": "\\}",
+              "patterns": [
+                { "include": "source.js" }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.directive.fly",
+          "begin": "(?:if|for|else)\\s*=\\s*'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "expression.embedded.directive.fly",
+              "begin": "\\{",
+              "end": "\\}",
+              "patterns": [
+                { "include": "source.js" }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+
+    "fly-slot": {
+      "patterns": [
+        {
+          "name": "entity.name.tag.slot.fly",
+          "match": "<\\s*slot\\s*(/\\s*)?>",
+          "captures": {
+            "1": { "name": "punctuation.definition.tag.end.fly" }
+          }
+        }
+      ]
+    },
+
+    "fly-interpolation": {
+      "patterns": [
+        {
+          "name": "meta.interpolation.fly",
+          "begin": "\\{",
+          "end": "\\}",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.interpolation.begin.fly" }
+          },
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.interpolation.end.fly" }
+          },
+          "patterns": [
+            { "include": "source.js" }
+          ]
+        }
+      ]
+    },
+
+    "javascript": {
+      "patterns": [
+        { "include": "source.js" }
+      ]
+    },
+
+    "css": {
+      "patterns": [
+        { "include": "source.css" }
+      ]
+    }
+  }
+}

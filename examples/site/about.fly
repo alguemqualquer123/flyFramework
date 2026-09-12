@@ -1,0 +1,21 @@
+<script>
+  export function meta() {
+    return { title: "Sobre — Loja Fly", description: "Saiba mais sobre a Loja Fly e a framework." };
+  }
+</script>
+
+<h1>Sobre</h1>
+<p>
+  A <strong>Loja Fly</strong> é um site de demonstração completo. Serve para validar a framework
+  <em>Fly</em> em um caso real: múltiplas páginas, tipagens de rota, dados, formulários e SEO.
+</p>
+
+<h2>Arquitetura do site</h2>
+<ul>
+  <li><code>layout.fly</code> — shell compartilhado (header/nav/footer) com CSS escopado.</li>
+  <li><code>index.fly</code> — home SSG com meta e OpenGraph.</li>
+  <li><code>store/index.fly</code> e <code>store/[id].fly</code> — catálogo ISR com loader + cache.</li>
+  <li><code>api/products.fly</code> — endpoint JSON da API.</li>
+  <li><code>actions/site.fly</code> — Server Actions (contato e login).</li>
+  <li><code>cart.fly</code> — carrinho reativo no client em <code>$state</code>/<code>$derived</code>.</li>
+</ul>

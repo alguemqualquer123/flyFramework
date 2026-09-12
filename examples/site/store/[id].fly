@@ -1,0 +1,64 @@
+<script>
+  export const render = "isr";
+  export const revalidate = 30;
+
+  function addToCart(id) {
+    if (typeof localStorage === "undefined") return;
+    const cart = JSON.parse(localStorage.getItem("fly-cart") || "[]");
+    cart.push(id);
+    localStorage.setItem("fly-cart", JSON.stringify(cart));
+    window.dispatchEvent(new CustomEvent("fly:cart", { detail: cart.length }));
+  }
+
+  export async function loader({ params, cache }) {
+    const products = await cache.fetch("catalog", async () => {
+      await new Promise((r) => setTimeout(r, 40));
+      return [
+        { id: 1, name: "Camiseta Fly", price: 79.9, img: "👕", cat: "Vestuário", desc: "Algodão penteado premium, estampa da framework.", stock: 12 },
+        { id: 2, name: "Caneca Dev", price: 39.9, img: "☕", cat: "Acessório", desc: "Capacidade 350ml, ótima para café + código.", stock: 30 },
+        { id: 3, name: "Adesivos Pack", price: 19.9, img: "🖨️", cat: "Acessório", desc: "10 adesivos vinil 5x5cm para seu notebook.", stock: 50 },
+        { id: 4, name: "Moletom Fly", price: 159.9, img: "🧥", cat: "Vestuário", desc: "Fleece antialérgico, toque macio e quentinho.", stock: 8 },
+        { id: 5, name: "Poster Arquitetura", price: 49.9, img: "🖼️", cat: "Decoração", desc: "Impressão em papel sulfite 180g, 40x60cm.", stock: 15 },
+        { id: 6, name: "Teclado Compacto", price: 329.9, img: "⌨️", cat: "Hardware", desc: "Mecânico hot-swap, layout ABNT2.", stock: 5 },
+        { id: 7, name: "Mouse Ergonômico", price: 119.9, img: "🖱️", cat: "Hardware", desc: "Sem fio, bateria de 6 meses.", stock: 22 },
+        { id: 8, name: "Capa Notebook", price: 59.9, img: "💼", cat: "Acessório", desc: "Neoprene 14\", proteção contra quedas.", stock: 18 },
+      ];
+    }, { ttl: 30, tags: ["products"] });
+
+    const id = Number(params.id);
+    const product = products.find((p) => p.id === id);
+    return { product: product ?? null };
+  }
+
+  export function meta({ data, params }) {
+    const p = data.product;
+    return {
+      title: p ? p.name + " — Loja Fly" : "Produto não encontrado",
+      description: p ? p.desc : "Produto ausente do catálogo.",
+      openGraph: { type: "product" },
+    };
+  }
+</script>
+
+<div if={!data.product}>
+  <h1>Produto não encontrado</h1>
+  <p>O produto <code>{params.id}</code> não existe no catálogo.</p>
+  <Link href="/store">← voltar à loja</Link>
+</div>
+
+<div if={data.product}>
+  <div class="row" style="gap:1.5rem;align-items:flex-start">
+    <div style="font-size:5rem"> {data.product.img} </div>
+    <div style="flex:1">
+      <span class="btn ghost" style="margin-bottom:.8rem">{data.product.cat}</span>
+      <h1>{data.product.name}</h1>
+      <p class="price">R$ {data.product.price.toFixed(2)}</p>
+      <p>{data.product.desc}</p>
+      <p style="color:#6b7280;font-size:.9rem">Em estoque: {data.product.stock} unidades.</p>
+      <div class="row" style="margin-top:1rem">
+        <button class="btn" on:click={() => addToCart(data.product.id)}>Adicionar ao carrinho</button>
+        <Link href="/store" class="btn ghost">← Loja</Link>
+      </div>
+    </div>
+  </div>
+</div>

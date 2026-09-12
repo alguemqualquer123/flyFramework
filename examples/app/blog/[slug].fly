@@ -1,0 +1,29 @@
+<script>
+  export async function loader({ params, cache }) {
+    return cache.fetch("post:" + params.slug, () => ({
+      post: { slug: params.slug, title: "Post " + params.slug, body: "Conteúdo gerado para " + params.slug }
+    }), { ttl: 30, tags: ["posts"] });
+  }
+
+  export function meta({ data }) {
+    return {
+      title: data.post.title,
+      description: data.post.body,
+      canonical: "https://fly.dev/blog/" + data.post.slug,
+      openGraph: { title: data.post.title, type: "article" }
+    }
+  }
+
+  export const render = "isr";
+  export const revalidate = 60;
+
+  export async function generateStaticParams() {
+    return [{ slug: "hello" }, { slug: "mundo" }];
+  }
+</script>
+
+<article>
+  <h1>{data.post.title}</h1>
+  <p>{data.post.body}</p>
+  <a href="/">← voltar</a>
+</article>

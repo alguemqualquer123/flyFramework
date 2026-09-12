@@ -1,0 +1,20 @@
+<script>
+  let count = $state(0)
+  let nome = $state("Fly")
+
+  export function meta() {
+    return { title: "Home · " + nome, description: "Framework Fly demo", openGraph: { title: "Fly" } }
+  }
+</script>
+
+<h1>Bem-vindo ao {nome}</h1>
+<button on:click={count++}>Cliques: {count}</button>
+<p class:active={count > 3}>Clique mais de 3x para ativar a classe</p>
+<input bind:value={nome} placeholder="seu nome" />
+<ul>
+  <li for={n of [1, 2, 3, 4, 5]}>Item {n}</li>
+</ul>
+
+<Image src="/logo.png" alt="logo do Fly" />
+<Link href="/blog/hello">Ver post de exemplo →</Link>
+<Link href="/contact">Contato (server actions)</Link>

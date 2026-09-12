@@ -1,0 +1,5 @@
+<div class="notice" style="background:#fef2f2;border-color:#fecaca;color:#991b1b">
+  <h2>Algo deu errado</h2>
+  <p>{data?.message ?? "Erro interno no servidor."}</p>
+  <Link href="/">← voltar ao início</Link>
+</div>

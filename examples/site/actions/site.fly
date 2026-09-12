@@ -1,0 +1,18 @@
+"use server"
+
+// Server Actions do site de exemplo. Executam no servidor e podem revalidar cache/redirecionar.
+
+export async function enviarContato({ name, email, message }) {
+  // Em produção: salvar num banco ou enviar e-mail.
+  if (!name || !email || !message) {
+    throw new Error("Preencha todos os campos.");
+  }
+  return { ok: true, received: { name, email }, at: new Date().toISOString() };
+}
+
+export async function login({ email, senha }) {
+  // Demo: não há banco de usuários; apenas simula autenticação em memória.
+  if (!email || !senha) throw new Error("Informe e-mail e senha.");
+  if (senha.length < 4) throw new Error("Senha muito curta.");
+  return { ok: true, user: { email, nome: email.split("@")[0] } };
+}

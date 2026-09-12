@@ -1,0 +1,196 @@
+{
+  "name": "Fly Icons",
+  "hidesExplorerArrows": false,
+  "fileExtensions": {
+    "fly": {
+      "icon": "resources/icons/fly-file.svg",
+      "fontColor": "#FFD700"
+    },
+    "css": {
+      "icon": "_folder_type_css",
+      "fontColor": "#569CD6"
+    },
+    "ts": {
+      "icon": "_file_type_typescript",
+      "fontColor": "#3178C6"
+    },
+    "js": {
+      "icon": "_file_type_javascript",
+      "fontColor": "#F7DF1E"
+    },
+    "json": {
+      "icon": "_file_type_json",
+      "fontColor": "#79C0FF"
+    },
+    "html": {
+      "icon": "_file_type_html",
+      "fontColor": "#E34F26"
+    },
+    "svg": {
+      "icon": "_file_type_svg",
+      "fontColor": "#FFB13B"
+    },
+    "md": {
+      "icon": "_file_type_markdown",
+      "fontColor": "#519ABA"
+    },
+    "yaml": {
+      "icon": "_file_type_yaml",
+      "fontColor": "#CB171E"
+    },
+    "yml": {
+      "icon": "_file_type_yaml",
+      "fontColor": "#CB171E"
+    },
+    "toml": {
+      "icon": "_file_type_toml",
+      "fontColor": "#9C4121"
+    }
+  },
+  "fileNames": {
+    "fly.config.ts": {
+      "icon": "resources/icons/fly-config.svg",
+      "fontColor": "#FFD700"
+    },
+    "fly.config.js": {
+      "icon": "resources/icons/fly-config.svg",
+      "fontColor": "#FFD700"
+    },
+    "tsconfig.json": {
+      "icon": "_file_type_typescript",
+      "fontColor": "#3178C6"
+    },
+    "package.json": {
+      "icon": "_file_type_node",
+      "fontColor": "#7EE787"
+    },
+    ".gitignore": {
+      "icon": "_file_type_git",
+      "fontColor": "#F14E32"
+    },
+    "README.md": {
+      "icon": "_file_type_markdown",
+      "fontColor": "#519ABA"
+    }
+  },
+  "folderNames": {
+    "fly": {
+      "icon": "resources/icons/fly-folder.svg",
+      "fontColor": "#FFD700"
+    },
+    ".fly": {
+      "icon": "resources/icons/fly-folder.svg",
+      "fontColor": "#FFD700"
+    },
+    "src": {
+      "icon": "_folder_type_src",
+      "fontColor": "#79C0FF"
+    },
+    "router": {
+      "icon": "resources/icons/fly-router.svg",
+      "fontColor": "#4FC1FF"
+    },
+    "compiler": {
+      "icon": "resources/icons/fly-compiler.svg",
+      "fontColor": "#C586C0"
+    },
+    "cache": {
+      "icon": "resources/icons/fly-cache.svg",
+      "fontColor": "#FFA657"
+    },
+    "seo": {
+      "icon": "resources/icons/fly-seo.svg",
+      "fontColor": "#7EE787"
+    },
+    "core": {
+      "icon": "resources/icons/fly-core.svg",
+      "fontColor": "#FF7B72"
+    },
+    "cli": {
+      "icon": "resources/icons/fly-cli.svg",
+      "fontColor": "#D4D4D4"
+    },
+    "runtime": {
+      "icon": "resources/icons/fly-runtime.svg",
+      "fontColor": "#4EC9B0"
+    },
+    "node_modules": {
+      "icon": "_folder_type_node",
+      "fontColor": "#7EE787"
+    },
+    "dist": {
+      "icon": "_folder_type_dist",
+      "fontColor": "#4FC1FF"
+    },
+    "build": {
+      "icon": "_folder_type_dist",
+      "fontColor": "#4FC1FF"
+    },
+    "tests": {
+      "icon": "_folder_type_test",
+      "fontColor": "#7EE787"
+    },
+    "test": {
+      "icon": "_folder_type_test",
+      "fontColor": "#7EE787"
+    },
+    "examples": {
+      "icon": "_folder_type_example",
+      "fontColor": "#FFA657"
+    },
+    "docs": {
+      "icon": "_folder_type_documentation",
+      "fontColor": "#79C0FF"
+    },
+    "app": {
+      "icon": "_folder_type_app",
+      "fontColor": "#FFD700"
+    },
+    "bench": {
+      "icon": "_folder_type_benchmark",
+      "fontColor": "#D2A8FF"
+    }
+  },
+  "languageIds": {
+    "fly": {
+      "icon": "resources/icons/fly-file.svg",
+      "fontColor": "#FFD700"
+    },
+    "flyconfig": {
+      "icon": "resources/icons/fly-config.svg",
+      "fontColor": "#FFD700"
+    },
+    "typescript": {
+      "icon": "_file_type_typescript",
+      "fontColor": "#3178C6"
+    },
+    "javascript": {
+      "icon": "_file_type_javascript",
+      "fontColor": "#F7DF1E"
+    },
+    "json": {
+      "icon": "_file_type_json",
+      "fontColor": "#79C0FF"
+    },
+    "html": {
+      "icon": "_file_type_html",
+      "fontColor": "#E34F26"
+    },
+    "css": {
+      "icon": "_file_type_css",
+      "fontColor": "#569CD6"
+    },
+    "markdown": {
+      "icon": "_file_type_markdown",
+      "fontColor": "#519ABA"
+    },
+    "yaml": {
+      "icon": "_file_type_yaml",
+      "fontColor": "#CB171E"
+    },
+    "git-rebase": {
+      "icon": "_file_type_git",
+      "fontColor": "#F14E32"
+    }
+  }
+}

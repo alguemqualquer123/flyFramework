@@ -1,0 +1,21 @@
+<script>
+  const posts = [
+    { slug: "hello-fly", title: "Olá, Fly!", date: "2026-01-12", excerpt: "Como o framework renderiza, hidrata e escala sem Virtual DOM." },
+    { slug: "server-actions", title: "Server Actions na prática", date: "2026-02-03", excerpt: "Formulários progressivos: funcionam sem JS e são aprimorados com JS." },
+    { slug: "ssg-isr-streaming", title: "SSG, ISR e streaming", date: "2026-03-20", excerpt: "As três estratégias de renderização do Fly, quando usar cada uma." },
+    { slug: "zero-deps-css", title: "CSS escopado sem bundler", date: "2026-05-08", excerpt: "Estilos por componente e utilitários responsivos gerados na hora." },
+  ];
+
+  export function meta() { return { title: "Blog — Loja Fly", description: "Tutoriais e novidades da framework Fly." }; }
+</script>
+
+<h1>Blog</h1>
+<p>Posts pré-renderizados (SSG): cada um tem sua rota via <code>generateStaticParams</code>.</p>
+
+<div class="grid">
+  <div class="card" for={p of posts}>
+    <p style="color:#6b7280;font-size:.85rem">{p.date}</p>
+    <h3><Link href={"/blog/" + p.slug}>{p.title}</Link></h3>
+    <p>{p.excerpt}</p>
+  </div>
+</div>

@@ -1,0 +1,1 @@
+<header>BLOG-HDR</header><nav>BLOG-NAV</nav><main><slot/></main><footer>BLOG-FTR</footer>

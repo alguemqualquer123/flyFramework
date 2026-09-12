@@ -1,0 +1,36 @@
+<script>
+  const posts = {
+    "hello-fly": { title: "Olá, Fly!", date: "2026-01-12", body: "A framework compila cada página .fly em funções SSR e em código client reativo minimalista. Sem Virtual DOM, a atualização é direta no DOM real, com signals inspirados no Svelte 5." },
+    "server-actions": { title: "Server Actions na prática", date: "2026-02-03", body: "Com <Form action={fn}>, o formulário envia um POST nativo quando não há JS e, com JS, dispara a action via fetch e faz o swap SPA — progressive enhancement de verdade." },
+    "ssg-isr-streaming": { title: "SSG, ISR e streaming", date: "2026-03-20", body: "SSG para páginas estáticas, ISR para dados que mudam com TTL e revalidação por tag, e streaming com loading boundary para conteúdo assíncrono por página." },
+    "zero-deps-css": { title: "CSS escopado sem bundler", date: "2026-05-08", body: "Cada <style> de componente é escopado via data-fly-scope, e utilitários responsivos (sm:, md:, lg:) são gerados na hora — sem Tailwind, sem PostCSS, sem build de terceiros." },
+  };
+
+  export const render = "ssr";
+
+  export function generateStaticParams() {
+    return Object.keys(posts).map((slug) => ({ slug }));
+  }
+
+  export function meta({ params, data }) {
+    const p = data.post;
+    return { title: p ? p.title + " — Blog" : "Post não encontrado", description: p ? p.title : "", type: "article" };
+  }
+
+  export async function loader({ params }) {
+    return { post: posts[params.slug] ?? null };
+  }
+</script>
+
+<div if={!data.post}>
+  <h1>Post não encontrado</h1>
+  <p>Não existe o post <code>{params.slug}</code>.</p>
+  <Link href="/blog">← voltar ao blog</Link>
+</div>
+
+<div if={data.post}>
+  <p style="color:#6b7280;font-size:.85rem">{data.post.date}</p>
+  <h1>{data.post.title}</h1>
+  <p>{data.post.body}</p>
+  <div class="row" style="margin-top:1rem"><Link href="/blog" class="btn ghost">← Todos os posts</Link></div>
+</div>

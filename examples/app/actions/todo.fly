@@ -1,0 +1,13 @@
+"use server"
+
+// Server Action: executa no server, pode revalidar cache e redirecionar.
+export async function addTodo(text) {
+  // Em produção: salvar em DB.
+  return { ok: true, text, at: new Date().toISOString() };
+}
+
+export async function likePost(slug) {
+  revalidateTag("posts");
+  revalidatePath("/blog/" + slug);
+  return { liked: slug };
+}

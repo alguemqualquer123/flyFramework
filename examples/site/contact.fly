@@ -1,0 +1,27 @@
+<script>
+  let status = $state("");
+
+  export function meta() { return { title: "Contato — Loja Fly", description: "Fale com a gente." }; }
+</script>
+
+<h1>Contato</h1>
+<p>Este formulário usa uma <strong>Server Action</strong> com <em>progressive enhancement</em>: funciona sem JavaScript (POST nativo) e, com JS, envia via <code>fetch</code> sem recarregar.</p>
+
+<div class="notice" if={status}>
+  <p>{status}</p>
+</div>
+
+<Form action={enviarContato} data-fly-error="err">
+  <div on:fly:error={(e) => (status = "Erro: " + e.detail)}>
+    <label>Nome</label>
+    <input name="name" placeholder="Seu nome" required />
+    <label>E-mail</label>
+    <input name="email" type="email" placeholder="voce@exemplo.com" required />
+    <label>Mensagem</label>
+    <textarea name="message" rows="4" placeholder="Sua mensagem…" required></textarea>
+    <div class="row" style="margin-top:1rem">
+      <button class="btn" type="submit">Enviar</button>
+      <span style="color:#6b7280">Resposta aparece aqui (SPA) via Server Action.</span>
+    </div>
+  </div>
+</Form>

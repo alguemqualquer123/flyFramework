@@ -1,0 +1,16 @@
+{
+  "scopeName": "source.ts",
+  "name": "Fly Config",
+  "fileTypes": ["fly.config.ts", "fly.config.js"],
+  "patterns": [
+    { "include": "source.ts" },
+    {
+      "name": "support.type.config.fly",
+      "match": "\\bdefineConfig\\b"
+    },
+    {
+      "name": "variable.language.config.fly",
+      "match": "\\b(appDir|siteUrl|adapter|build|minify|sourcemap)\\b"
+    }
+  ]
+}

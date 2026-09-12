@@ -1,0 +1,34 @@
+<script>
+  export function meta() {
+    return {
+      title: "Loja Fly — framework full-stack compilado",
+      description: "Site de demonstração: SSR, SSG, ISR, Server Actions, layouts aninhados, SEO e streams.",
+    };
+  }
+</script>
+
+<section style="padding:3rem 0;text-align:center">
+  <h1 style="font-size:2.6rem">🪰 Loja Fly</h1>
+  <p style="font-size:1.15rem;color:#4b5563;max-width:640px;margin:1rem auto">
+    Um site completo construído de ponta a ponta com a <strong>framework Fly</strong>:
+    renderização compilada, reatividade estilo Svelte sem Virtual DOM e deploy universal.
+  </p>
+  <div class="row" style="justify-content:center;margin-top:1.5rem">
+    <Link href="/store" class="btn">Ver a loja</Link>
+    <Link href="/blog" class="btn ghost">Ler o blog</Link>
+  </div>
+</section>
+
+<div class="notice">
+  Esta página inicial é <strong>SSG</strong> (pré-renderizada), o <Link href="/store">catálogo</Link> é <strong>ISR</strong> (loader + revalidação), o <Link href="/blog">blog</Link> é <strong>SSG dinâmico</strong> com <code>generateStaticParams</code>, e o <Link href="/contact">contato</Link> usa <strong>Server Actions</strong>.
+</div>
+
+<h2>Recursos demonstrados</h2>
+<div class="grid">
+  <div class="card"><h3>⚡ SSR + streaming</h3><p>Carregamento instantâneo com loading boundary e swap via stream.</p></div>
+  <div class="card"><h3>📦 SSG / ISR</h3><p>Páginas pré-geradas e cache com revalidação por tags.</p></div>
+  <div class="card"><h3>🛠️ Server Actions</h3><p>Formulários progressivos sem JS, com enhanced SPA quando JS existe.</p></div>
+  <div class="card"><h3>🧩 Layouts aninhados</h3><p>Nav, header e footer compartilhados pela rota raiz.</p></div>
+  <div class="card"><h3>🔍 SEO</h3><p>Meta, OpenGraph e sitemap gerados por página.</p></div>
+  <div class="card"><h3>🖱️ Reatividade</h3><p>Carrinho em <code>$state</code>/<code>$derived</code> com localStorage.</p></div>
+</div>

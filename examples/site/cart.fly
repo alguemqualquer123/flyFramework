@@ -1,0 +1,57 @@
+<script>
+  let items = $state([]);      // lista de ids no carrinho
+  let loaded = $state(false);
+
+  onMount(() => {
+    const ids = JSON.parse(localStorage.getItem("fly-cart") || "[]");
+    items = ids;
+    loaded = true;
+  });
+
+  function remove(id) {
+    items = items.filter((i) => i !== id);
+    localStorage.setItem("fly-cart", JSON.stringify(items));
+    window.dispatchEvent(new CustomEvent("fly:cart", { detail: items.length }));
+  }
+
+  function limpar() {
+    items = [];
+    localStorage.setItem("fly-cart", "[]");
+    window.dispatchEvent(new CustomEvent("fly:cart", { detail: 0 }));
+  }
+
+  const CATALOG = {
+    1: ["Camiseta Fly", 79.9], 2: ["Caneca Dev", 39.9], 3: ["Adesivos Pack", 19.9],
+    4: ["Moletom Fly", 159.9], 5: ["Poster Arquitetura", 49.9], 6: ["Teclado Compacto", 329.9],
+    7: ["Mouse Ergonômico", 119.9], 8: ["Capa Notebook", 59.9],
+  };
+
+  let total = $derived(() => items.reduce((acc, id) => acc + (CATALOG[id]?.[1] ?? 0), 0));
+</script>
+
+<h1>Carrinho</h1>
+
+<div if={!loaded}>Carregando carrinho…</div>
+
+<div if={loaded && items.length === 0}>
+  <p>Seu carrinho está vazio.</p>
+  <Link href="/store" class="btn">Ir para a loja</Link>
+</div>
+
+<div if={loaded && items.length > 0}>
+  <table>
+    <thead><tr><th>Produto</th><th>Preço</th><th></th></tr></thead>
+    <tbody>
+      <tr for={id of items}>
+        <td>{CATALOG[id]?.[0] ?? ("Produto #" + id)}</td>
+        <td>R$ {(CATALOG[id]?.[1] ?? 0).toFixed(2)}</td>
+        <td><button class="btn ghost" on:click={() => remove(id)}>Remover</button></td>
+      </tr>
+    </tbody>
+  </table>
+  <p style="margin-top:1rem;font-size:1.2rem"><strong>Total: R$ {total.toFixed(2)}</strong></p>
+  <div class="row" style="margin-top:1rem">
+    <button class="btn" on:click={() => alert("Compra finalizada (demo)!")}>Finalizar compra</button>
+    <button class="btn ghost" on:click={limpar}>Esvaziar carrinho</button>
+  </div>
+</div>

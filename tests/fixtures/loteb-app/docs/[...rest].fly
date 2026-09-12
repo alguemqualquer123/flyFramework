@@ -1,0 +1,1 @@
+<script>export const render="ssr"</script><p>CATCH:{params.rest}</p>

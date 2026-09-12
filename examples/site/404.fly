@@ -1,0 +1,12 @@
+<script>
+  export function meta() { return { title: "Página não encontrada", description: "404 — o que você procura não existe." }; }
+</script>
+
+<div style="text-align:center;padding:4rem 0">
+  <h1 style="font-size:3rem">404</h1>
+  <p>A página que você procura não existe ou foi movida.</p>
+  <div class="row" style="justify-content:center;margin-top:1rem">
+    <Link href="/" class="btn">← Voltar ao início</Link>
+    <Link href="/store" class="btn ghost">Ir para a loja</Link>
+  </div>
+</div>
