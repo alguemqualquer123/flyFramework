@@ -95,7 +95,6 @@ src/
   seo/         head, sitemap
   cli/         dev, build, start, check, create, add, init
 app/ ou examples/app/   suas páginas .fly
-docs/          planejamento e arquitetura
 tests/         87 testes com node --test
 bench/         bench de compile / SSR / memória
 ```
@@ -148,10 +147,6 @@ Bench:
 ```bash
 node bench/index.ts
 ```
-
-## Docs
-
-O detalhamento tá em `docs/` (visão, arquitetura, compilador, roteamento, render, backend, seo, cache, cli, roadmap). Começa por `docs/00-overview.md`.
 
 ## O que falta
 

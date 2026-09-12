@@ -20,3 +20,5 @@ Thumbs.db
 
 coverage/
 .nyc_output/
+
+docs/
